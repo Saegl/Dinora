@@ -9,7 +9,7 @@
         },
         "init": {
             "command": "stockfish",
-            "options": {"Use NNUE": "false"},
+            "options": {},
             "time_limit": 0.5
         }
     },
