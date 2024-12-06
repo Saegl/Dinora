@@ -37,7 +37,7 @@ class Time(Stopper):
     def should_stop(self) -> bool:
         if self.steps < 2:  # Calculate minimum 2 nodes
             self.steps += 1
-            return True
+            return False
         return time() - self.starttime > self.move_time
 
     def __str__(self) -> str:
