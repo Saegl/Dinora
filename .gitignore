@@ -1,8 +1,8 @@
 # Custom ignore lines
 models/*
 !models/.gitkeep
-/jupyter/generated/
-/jupyter/data/
+reports/*
+!reports/.gitkeep
 wandb/*
 artifacts/*
 lightning_logs/*
