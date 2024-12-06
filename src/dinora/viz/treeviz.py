@@ -1,12 +1,14 @@
 """
 Visualization of MCTS
 """
+
 import pathlib
 from collections.abc import Iterator
 from dataclasses import dataclass
 from itertools import chain
 from typing import Literal
 
+import cairosvg
 import chess.svg
 import graphviz
 
@@ -113,15 +115,24 @@ def build_info_node(graph: graphviz.Digraph, root: Node) -> None:
 
 
 def build_root_node(
-    output_dir: pathlib.Path, graph: graphviz.Digraph, fen: str
+    output_dir: pathlib.Path, graph: graphviz.Digraph, fen: str, imgformat: str
 ) -> None:
     """Save root node in digraph and attach board preview"""
     svg = SVG_PREFIX + chess.svg.board(chess.Board(fen))
-    svg_filename = "svg_board.svg"
-    board_path = output_dir / svg_filename
-    with open(board_path, "w", encoding="utf8") as f:
-        f.write(svg)
-    graph.node("root", label="", image=svg_filename, imagescale="false", shape="box")
+
+    if imgformat == "svg":
+        board_filename = "board.svg"
+        board_path = output_dir / board_filename
+        with open(board_path, "w", encoding="utf8") as f:
+            f.write(svg)
+    elif imgformat == "png":
+        board_filename = "board.png"
+        board_path = output_dir / board_filename
+        cairosvg.svg2png(bytestring=svg, write_to=str(board_path))
+    else:
+        raise Exception("Unsupported image format")
+
+    graph.node("root", label="", image=board_filename, imagescale="false", shape="box")
 
 
 def build_children_nodes(
@@ -185,7 +196,7 @@ def build_graph(
     selected_nodes = select_most_visited_nodes(root, params.render_nodes).union(pv_set)
 
     build_info_node(graph, root)
-    build_root_node(params.output_dir, graph, fen)
+    build_root_node(params.output_dir, graph, fen, params.imgformat)
     build_children_nodes(graph, root, "root", selected_nodes, pv_set, params)
 
     return graph

@@ -28,7 +28,7 @@ You can see example game below
 
 There is a tool for tree visualization, look more [here](https://dinora.readthedocs.io/en/latest/treeviz.html)
 
-![Treeviz Visualization](assets/treeviz-example/state.svg)
+![Treeviz Visualization](assets/treeviz-example/state.png)
 
 # Acknowledgements
 
