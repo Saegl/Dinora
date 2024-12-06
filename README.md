@@ -26,9 +26,13 @@ You can see example game below
 
 ## Tree Visualization
 
-There is a tool for tree visualization, look more [here](https://dinora.readthedocs.io/en/latest/treeviz.html)
+There is a tool for tree visualization.
 
 ![Treeviz Visualization](assets/treeviz-example/state.png)
+
+Original vector images can be found at (/assets/treeviz-example/)  
+To generate new visualizations see
+```python -m dinora treeviz --help```
 
 # Acknowledgements
 
