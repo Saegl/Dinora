@@ -36,7 +36,22 @@ To generate new visualizations see
 
 # Acknowledgements
 
-This engine based on https://github.com/Zeta36/chess-alpha-zero and 
-https://github.com/dkappe/a0lite and Alphazero from Deepmind.
+- [AlphaZero](https://deepmind.google/discover/blog/alphazero-shedding-new-light-on-chess-shogi-and-go/) Original AlphaZero resources
+- [Zeta36/chess-alpha-zero](https://github.com/Zeta36/chess-alpha-zero)
+First/(one of the first) open source alphazero implementation in python
+- [dkappe/a0lite](https://github.com/dkappe/a0lite) NN + MCTS in 95 lines of
+python code
+- [Chess Wiki](https://www.chessprogramming.org) Good resource on chess engines
+  in general
+- [int8 MCTS article](https://int8.io/monte-carlo-tree-search-beginners-guide/)
+  Intro to MCTS blog post
+- [Deep Dive MCTS](https://www.moderndescartes.com/essays/deep_dive_mcts/)
+Another great article on MCTS
+- [Stockfish](https://stockfishchess.org/) Strongest chess engine, used here for
+  test / training data annotation
+- [Leela Chess Zero](https://lczero.org/) If you really want to use AlphaZero
+inspired chess engine this is the real one
+- [Pytorch](https://pytorch.org/) Library to train neural networks
+- [Python chess](https://python-chess.readthedocs.io/en/latest/) Library for
+chess (rules, legal moves generator, pgn reader/writer, UCI interface)
 
-A lot of tutorials about chess engines from https://www.chessprogramming.org/ was super helpful.
