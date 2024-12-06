@@ -65,7 +65,8 @@ def model_selector(
         if weights_path is None:
             weights_path = search_weights(DEFAULT_ALPHANET_WEIGHTS_FILENAME)
 
-        alphanet = torch.load(weights_path, map_location=device)
+        # TODO: Do I really need `weights_only`?
+        alphanet = torch.load(weights_path, map_location=device, weights_only=False)
         alphanet = alphanet.to(device)
         return alphanet  # type: ignore
 
