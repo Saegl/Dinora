@@ -54,6 +54,7 @@ stochastic gradient descent with the annealing rate, momentum and regularization
 the supervised learning experiment; however, cross-entropy and MSE components were weighted equally,
 since more data was available.'
 """
+
 from typing import Any
 
 import chess
@@ -158,6 +159,9 @@ class AlphaNet(pl.LightningModule, NNWrapper):
             nn.Linear(in_features=value_fc_hidden, out_features=1),
             nn.Tanh(),
         )
+
+    def name(self) -> str:
+        return "Alphanet"
 
     def forward(self, x):  # type: ignore
         x = self.convblock(x)

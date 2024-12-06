@@ -24,6 +24,7 @@ class UciState:
             send("info string loading nn, it make take a while")
             self.engine.load_model()
             send("info string nn is loaded")
+            send(f"info string model name: {self.engine.model.name()}")
 
     def dispatcher(self, line: str) -> None:
         command, *tokens = line.strip().split()

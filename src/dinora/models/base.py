@@ -9,6 +9,10 @@ Evaluation = tuple[Priors, StateValue]
 
 class BaseModel(ABC):
     @abstractmethod
+    def name(self) -> str:
+        """Return model name for logs/debug_info"""
+
+    @abstractmethod
     def evaluate(self, board: chess.Board) -> Evaluation:
         pass
 

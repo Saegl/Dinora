@@ -11,6 +11,9 @@ class CachedModel(BaseModel):
         self.hit = 0
         self.misses = 0
 
+    def name(self) -> str:
+        return f"Cached [{self.model.name()}]"
+
     def clear(self) -> None:
         self.hit = 0
         self.misses = 0

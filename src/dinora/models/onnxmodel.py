@@ -29,6 +29,9 @@ class OnnxModel(NNWrapper):
 
         self.ort_session = onnxruntime.InferenceSession(weights, providers=providers)
 
+    def name(self) -> str:
+        return "Onnx"
+
     def raw_outputs(self, board: chess.Board) -> tuple[npf32, npf32]:
         """
         NN outputs as numpy arrays

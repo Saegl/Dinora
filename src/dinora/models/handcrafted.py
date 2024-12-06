@@ -83,6 +83,9 @@ def move_ordering(board: chess.Board) -> Priors:
 
 
 class DummyModel(BaseModel):
+    def name(self) -> str:
+        return "Handcrafted"
+
     def evaluate(self, board: chess.Board) -> tuple[Priors, StateValue]:
         return move_ordering(board), evaluate_board(board)
 
