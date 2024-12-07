@@ -87,6 +87,10 @@ def get_model(config: Config) -> pl.LightningModule:
 
 
 def fit(config: Config) -> None:
+    import wandb
+
+    wandb.init(project="dinora-chess")
+
     torch.set_float32_matmul_precision(config.matmul_precision)
     max_time = timedelta(**config.max_time) if config.max_time else None
 
@@ -163,7 +167,7 @@ def validate(config: Config) -> None:
 
     import wandb
 
-    wandb.init()
+    wandb.init(project="dinora-chess")
 
     datamodule = WandbDataModule(
         dataset_label=config.dataset_label,
