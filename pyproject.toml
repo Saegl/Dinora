@@ -26,9 +26,14 @@ dependencies = [
     "onnxruntime>=1.19.2",
     "pillow>=10.4.0",
     "pylru>=1.2.1",
-    "torch>=2.4.1",
     "tqdm>=4.66.5",
     "wandb>=0.18.1",
+]
+
+
+[project.optional-dependencies]
+torch = [
+    "torch>=2.4.1",
 ]
 
 [tool.uv]
