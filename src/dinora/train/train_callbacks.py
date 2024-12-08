@@ -7,10 +7,10 @@ import chess
 import chess.svg
 import lightning.pytorch as pl
 import torch
-import wandb
 from lightning.pytorch.callbacks import Callback
 from PIL import Image
 
+import wandb
 from dinora.train.handmade_val_dataset.dataset import POSITIONS
 
 
@@ -23,7 +23,7 @@ class SampleGameGenerator(Callback):
     ) -> None:
         board = chess.Board()
         while board.result() == "*" and board.ply() != 120:
-            policy, _ = pl_module.eval_by_network(board)
+            policy, _ = pl_module.evaluate(board)
             bestmove = max(policy, key=lambda k: policy[k])
             board.push(bestmove)
         moves = " ".join(map(lambda m: m.uci(), board.move_stack))
@@ -55,14 +55,12 @@ class BoardsEvaluator(Callback):
             "stockfish_wdl",
             "stockfish_top3_lines",
             "model_v",
-            "model_wdl",
             "model_bestmove",
         ]
 
         for position in self.positions:
             board = chess.Board(fen=position["fen"])
-            policy, probs = pl_module.eval_by_network(board)  # TODO: eval in batch
-            model_wdl = f"{probs[0]:.2f} | {probs[1]:.2f} | {probs[2]:.2f}"
+            policy, value = pl_module.evaluate(board)  # TODO: eval in batch
             bestmove = max(policy, key=lambda k: policy[k])
 
             entry = [
@@ -72,8 +70,7 @@ class BoardsEvaluator(Callback):
                 position["stockfish_cp"],
                 position["stockfish_wdl"],
                 position["stockfish_top3_lines"],
-                probs[0] - probs[2],
-                model_wdl,
+                value,
                 bestmove.uci(),
             ]
             if self.render_image:
@@ -100,8 +97,10 @@ class ValidationCheckpointer(Callback):
         final_state.add_file(filepath)  # type: ignore
         wandb.log_artifact(final_state)
 
-    def on_validation_end(self, _: pl.Trainer, pl_module: pl.LightningModule) -> None:
+    def on_validation_end(
+        self, trainer: pl.Trainer, pl_module: pl.LightningModule
+    ) -> None:
         self.save_model(pl_module, f"valid-state-{self.saves_counter}")
 
-    def on_train_end(self, _: pl.Trainer, pl_module: pl.LightningModule) -> None:
+    def on_train_end(self, trainer: pl.Trainer, pl_module: pl.LightningModule) -> None:
         self.save_model(pl_module, "valid-state-final")
