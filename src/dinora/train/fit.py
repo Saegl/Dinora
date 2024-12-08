@@ -87,10 +87,6 @@ def get_model(config: Config) -> pl.LightningModule:
 
 
 def fit(config: Config) -> None:
-    import wandb
-
-    wandb.init(project="dinora-chess")
-
     torch.set_float32_matmul_precision(config.matmul_precision)
     max_time = timedelta(**config.max_time) if config.max_time else None
 
@@ -124,6 +120,11 @@ def fit(config: Config) -> None:
         log_model="all",  # save model weights to wandb
         config={"config_file": asdict(config)},
     )
+
+    if not wandb_logger.experiment:
+        # Calling .experiment prop causes wandb run to init
+        # before creating WandbDataModule
+        raise Exception("wandb run not initialized")
 
     datamodule = WandbDataModule(
         dataset_label=config.dataset_label,
