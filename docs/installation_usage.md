@@ -7,8 +7,11 @@ converting run.sh to run.bat, make PR if you want to fix windows)
 
 
 You need [uv](https://docs.astral.sh/uv/)  
-Clone repo and run ```$ uv run python -m dinora```  
+Clone repo  
+Download blob of model weights from latest release into `models/` directory  
+```wget https://github.com/Saegl/dinora/releases/download/v0.2.2/alphanet_classic.ckpt```  
 
+run ```$ uv run python -m dinora```  
 After dependencies downloaded this will run [UCI](https://en.wikipedia.org/wiki/Universal_Chess_Interface)  
 To check that everything works, in UCI repl you could type  
 ```uci``` - Will show available options  
