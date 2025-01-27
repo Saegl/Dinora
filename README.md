@@ -1,5 +1,7 @@
 # Dinora
 
+[Installation & Usage](/docs/installation_usage.md)
+
 An alphazero-like chess engine. It uses 
 pytorch ConvNet for position evaluation and Monte Carlo Tree Search for 
 calculating best move.
