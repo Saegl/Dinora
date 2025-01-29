@@ -10,14 +10,14 @@
         "init": {
             "command": "stockfish",
             "options": {},
-            "time_limit": 0.5
+            "time_limit": 1.0
         }
     },
     "student_player": {
         "class": "UCIPlayer",
         "start_rating": {
-            "mu": 2500,
-            "phi": 150
+            "mu": 2000,
+            "phi": 350
         },
         "init": {
             "command": [
@@ -28,11 +28,13 @@
                 "ext_mcts",
                 "--model",
                 "alphanet",
+                "--device",
+                "cuda",
                 "--weights",
                 "models/alphanet_classic.ckpt"
             ],
             "options": {},
-            "time_limit": 0.5
+            "time_limit": 1.0
         }
     }
 }
