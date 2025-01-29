@@ -13,15 +13,18 @@ Training is 3 steps:
 
 ## Dataset
 
-To start training you need games dataset.  
-You can make your own dataset (takes hours of preprocessing, depending on
-dataset size and stockfish annotations depth),
-or [take one of my datasets](https://wandb.ai/saegl/dinora-chess/artifacts/dataset/traindocs/v0).
+To start training you need games dataset, preprocessed to `compact dataset`
+(numpy arrays) and uploaded to wandb. You have two options:
+
+
+### Option 1: Use Preprocessed Dataset
+
+[Take one of my datasets](https://wandb.ai/saegl/dinora-chess/artifacts/dataset/traindocs/v0).
 To take my dataset you need a wandb label for now,
 like "saegl/dinora-chess/traindocs:v0", that will be placed in training config later.
 
 
-### Create new dataset
+### Option 2: Create a New dataset
 
 (Skip this step if you took my label)  
 
@@ -60,7 +63,7 @@ unzip lichess_elite_2022-04.zip
 # Now we have single lichess_elite_2022-04.zip with 380k games
 
 # Download pgn-extract to split this file
-# Newer versions https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/
+# Check for newer versions here https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/
 wget https://www.cs.kent.ac.uk/~djb/pgn-extract/pgn-extract-25-01.zip
 unzip pgn-extract-25-01.zip
 cd pgn-extract-25-01.zip
@@ -153,13 +156,13 @@ Or read `src/dinora/train/fit.py`
 }
 ```
 
-### From terminal
+### Option 1: From terminal
 
 ```bash
 uv run python -m dinora.train.fit <path-to-config>
 ```
 
-### From jupyter notebook
+### Option 2: From jupyter notebook
 
 This is useful when you want to run in services like Google Colab / Kaggle /
 Vast.ai. They have jupyter notebooks with `torch` preinstalled,
@@ -170,8 +173,37 @@ Just copy `jupyter/train.ipynb` to service, update configs in notebook and run
 
 ### Charts
 
-Both method will print wandb url with output graphs and weights,
-[like this one](https://wandb.ai/saegl/dinora-chess/runs/ozs75vi1/workspace?nw=nwusersaegl)
+Both methods will print wandb url that shows graphs and weights updated in
+realtime.  
+I made a run based on this "saegl/dinora-chess/traindocs:v0" dataset.  
+[wandb url](https://wandb.ai/saegl/dinora-chess/runs/ozs75vi1).  
+It took 11 hours on Nvidia P100, exact config could be seen at `Overview >
+Config`
+
+![Train graph shows convergence](/docs/assets/train.png "Train Graph")
+![Validation graph indicates overfitting](/docs/assets/validation.png "Validation
+graph")
+
+value_loss: MSE, value is a combination of Z and Q
+policy_loss: Cross Entropy of predicted move and actually played move (1880
+possible moves in any position)
+
+Looking at train graph I see clear convergence: all losses decrease, accuracy
+increases.  
+Validation is more interesting because dataset is small (160k games) I was able
+to make many epochs (7), after about 4th, policy_loss is increases.
+
+![Example game without search](/docs/assets/example_game.png "Example game")
+
+This is moves predicted without search
+
+![handmade dataset](/docs/assets/handmade_dataset.png "Handmade dataset")
+
+Handmade dataset is very small validation set (120 positions), annotated by stockfish and me and compared to current network.  
+
+Both tables generated on each validation, so you could see progress made by
+network
+
 
 ## Evaluation
 
@@ -179,5 +211,65 @@ Besides train/validation loss graphs, to measure actual strength of resulted
 neural networks you need to run little minimatch against stockfish. Look at
 `uv python -m elofish --help`
 
-TODO: Add more info about elofish usage and configuration
+For this run I took `valid-state-8` and `valid-state-16` from [Artifacts tab](https://wandb.ai/saegl/dinora-chess/runs/ozs75vi1/artifacts) and placed them to `models/traindocs-valid-state-8.ckpt` and `models/traindocs-valid-state-16.ckpt` respectively.
 
+To run stockfish minimatch with them, you need `stockfish` available in PATH and
+configs like this
+
+```jsonc
+{
+    "max_games": 200,
+    "min_phi": 20.0,
+    "min_mu": 1200,
+    "teacher_player": {
+        "class": "StockfishPlayer",
+        "start_rating": {
+            "phi": 10
+        },
+        "init": {
+            "command": "stockfish",
+            "options": {},
+            "time_limit": 1.0
+        }
+    },
+    "student_player": {
+        "class": "UCIPlayer",
+        "start_rating": {
+            "mu": 2000,
+            "phi": 350
+        },
+        "init": {
+            "command": [
+                "python",
+                "-m",
+                "dinora",
+                "--searcher",
+                "ext_mcts",
+                "--model",
+                "alphanet",
+                "--device",
+                "cuda",
+                "--weights",
+                "models/traindocs-valid-state-16.ckpt"
+            ],
+            "options": {},
+            "time_limit": 1.0
+        }
+    }
+}
+```
+
+That you could run with
+
+```bash
+uv run python -m elofish <config.json>
+```
+
+After running very short elofish session (10 minutes each). Elofish
+evaluates both around 2390 and 2233.
+
+[Full elofish reports with games/logs/configs are here](https://wandb.ai/saegl/dinora-chess/artifacts/dataset/train_reports/v0/files)
+
+
+Note that this report is very rough, games against only one engine, just 15
+games, but it is fast and ensures that engines works, at least. If you want more accurate results, run engine tournament in CuteChess.
