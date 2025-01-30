@@ -109,6 +109,7 @@ def convert_pgn_file(
     print("Converting", pgn_path.name)
 
     tensors = {name: [] for name in ["boards", "policies", "wdls", "z_values"]}  # type: ignore
+    engine = None
 
     if q_nodes > 0:
         engine_logger.setLevel(logging.ERROR)
@@ -125,10 +126,10 @@ def convert_pgn_file(
                 tensors["wdls"].append(wdl_index(game, board.turn))
                 tensors["z_values"].append(z_value(game, board.turn))
 
-                if q_nodes > 0:
+                if engine is not None:
                     tensors["q_values"].append(stockfish_value(board, engine, q_nodes))
     finally:
-        if q_nodes > 0:
+        if engine is not None:
             engine.close()
 
     tensors["boards"] = np.array(tensors["boards"], dtype=np.int64)  # type: ignore
