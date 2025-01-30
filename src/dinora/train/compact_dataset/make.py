@@ -46,7 +46,7 @@ def convert_dir(
 
 
 def run_parallel_convert(
-    tasks: list[tuple[pathlib.Path, pathlib.Path, int]]
+    tasks: list[tuple[pathlib.Path, pathlib.Path, int]],
 ) -> dict[str, int]:
     chunks: dict[str, int] = {}
     with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -87,6 +87,8 @@ def generate_report(
             test_current += states
 
     report = {
+        # TODO: include version
+        # TODO: include `q_nodes`
         "train": train_chunks,
         "val": val_chunks,
         "test": test_chunks,

@@ -67,6 +67,8 @@ class Config:
     value_channels: int
     value_lin_channels: int
 
+    # TODO: def from_json, also use this in jupyter notebook
+
 
 def get_model(config: Config) -> pl.LightningModule:
     if config.model_type == "alphanet":
