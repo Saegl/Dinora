@@ -44,6 +44,8 @@ def stockfish_value(
 ) -> float:
     info = engine.analyse(board, chess.engine.Limit(nodes=nodes))
 
+    assert "wdl" in info, "Stockfish doesn't reports 'wdl' values"
+
     # [0:1] scale
     wdl = info["wdl"].pov(board.turn).expectation()
 
