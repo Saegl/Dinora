@@ -124,9 +124,9 @@ def convert_pgn_file(
                 flip = not board.turn
 
                 tensors["boards"].append(board_to_compact_state(board, flip))
-                tensors["policies"].append(policy_index(move, not board.turn))
-                tensors["wdls"].append(wdl_index(game, board.turn))
-                tensors["z_values"].append(z_value(game, board.turn))
+                tensors["policies"].append(policy_index(move, flip))
+                tensors["wdls"].append(wdl_index(game, flip))
+                tensors["z_values"].append(z_value(game, flip))
 
                 if engine is not None:
                     tensors["q_values"].append(stockfish_value(board, engine, q_nodes))

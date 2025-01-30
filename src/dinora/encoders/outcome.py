@@ -1,6 +1,5 @@
 import chess.engine
 import chess.pgn
-from chess import BLACK, WHITE
 
 WIN, DRAW, LOSS = range(3)
 
@@ -9,32 +8,28 @@ class UnexpectedOutcome(Exception):
     pass
 
 
-def wdl_index(game: chess.pgn.Game, turn: bool) -> int:
+def wdl_index(game: chess.pgn.Game, flip: bool) -> int:
     result = game.headers["Result"]
 
     if result == "1/2-1/2":
         return DRAW
-    elif turn == WHITE and result == "1-0":
-        return WIN
-    elif turn == WHITE and result == "0-1" or turn == BLACK and result == "1-0":
-        return LOSS
-    elif turn == BLACK and result == "0-1":
-        return WIN
+    elif result == "1-0":
+        return WIN if not flip else LOSS
+    elif result == "0-1":
+        return LOSS if not flip else WIN
     else:
         raise UnexpectedOutcome(f"Illegal game result: {result}")
 
 
-def z_value(game: chess.pgn.Game, turn: bool) -> float:
+def z_value(game: chess.pgn.Game, flip: bool) -> float:
     result = game.headers["Result"]
 
     if result == "1/2-1/2":
         return 0.0
-    elif turn == WHITE and result == "1-0":
-        return +1.0
-    elif turn == WHITE and result == "0-1" or turn == BLACK and result == "1-0":
-        return -1.0
-    elif turn == BLACK and result == "0-1":
-        return +1.0
+    elif result == "1-0":
+        return +1.0 if not flip else -1.0
+    elif result == "0-1":
+        return -1.0 if not flip else +1.0
     else:
         raise UnexpectedOutcome(f"Illegal game result: {result}")
 
