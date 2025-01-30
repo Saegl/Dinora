@@ -60,7 +60,7 @@ Let's take games from Lichess Elite
 ```bash
 wget https://database.nikonoel.fr/lichess_elite_2022-04.zip
 unzip lichess_elite_2022-04.zip
-# Now we have single lichess_elite_2022-04.zip with 380k games
+# Now we have single lichess_elite_2022-04.zip with 339k games
 
 # Download pgn-extract to split this file
 # Check for newer versions here https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/
