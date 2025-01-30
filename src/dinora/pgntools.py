@@ -50,7 +50,7 @@ def load_state_tensors(pgn: TextIO) -> Iterator[tuple[npf32, tuple[int, int]]]:
     for game, board, move in load_game_states(pgn):
         flip = not board.turn
         yield (
-            board_to_tensor(board),
+            board_to_tensor(board, flip),
             (
                 policy_index(move, flip),
                 wdl_index(game, flip),
@@ -64,7 +64,7 @@ def load_compact_state_tensors(
     for game, board, move in load_game_states(pgn):
         flip = not board.turn
         yield (
-            board_to_compact_state(board),
+            board_to_compact_state(board, flip),
             (
                 policy_index(move, flip),
                 wdl_index(game, flip),

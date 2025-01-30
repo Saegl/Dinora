@@ -9,6 +9,7 @@ Board tensor in NCHW format:
 
 Array weight is 18 * 8 * 8 * 4 = 4608 bytes, where 4 is float32
 """
+
 import chess
 import numpy as np
 import numpy.typing as npt
@@ -58,9 +59,8 @@ PIECE_INDEX = {
 assert len(PIECE_INDEX) == 12
 
 
-def board_to_tensor(board: chess.Board) -> npf32:
+def board_to_tensor(board: chess.Board, flip: bool) -> npf32:
     "Convert current state (chessboard) to tensor"
-    flip = not board.turn
     if flip:
         board = board.mirror()
 
@@ -94,8 +94,7 @@ def board_to_tensor(board: chess.Board) -> npf32:
     return tensor
 
 
-def board_to_compact_state(board: chess.Board) -> npuint64:
-    flip = not board.turn
+def board_to_compact_state(board: chess.Board, flip: bool) -> npuint64:
     if flip:
         board = board.mirror()
 

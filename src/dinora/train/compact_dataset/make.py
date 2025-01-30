@@ -121,7 +121,9 @@ def convert_pgn_file(
     try:
         with open(pgn_path, encoding="utf8", errors="ignore") as pgn:
             for game, board, move in load_game_states(pgn):
-                tensors["boards"].append(board_to_compact_state(board))
+                flip = not board.turn
+
+                tensors["boards"].append(board_to_compact_state(board, flip))
                 tensors["policies"].append(policy_index(move, not board.turn))
                 tensors["wdls"].append(wdl_index(game, board.turn))
                 tensors["z_values"].append(z_value(game, board.turn))

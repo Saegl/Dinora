@@ -227,7 +227,8 @@ class AlphaNet(pl.LightningModule, NNWrapper):
         }
 
     def raw_outputs(self, board: chess.Board) -> tuple[npf32, npf32]:
-        board_tensor = board_to_tensor(board)
+        flip = not board.turn
+        board_tensor = board_to_tensor(board, flip)
         with torch.no_grad():
             raw_policy, raw_value = self(
                 torch.from_numpy(board_tensor).reshape((1, 18, 8, 8)).to(self.device)

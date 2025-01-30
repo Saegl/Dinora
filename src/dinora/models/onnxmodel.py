@@ -38,7 +38,8 @@ class OnnxModel(NNWrapper):
         priors numpy of shape (1880,)
         state value of shape (1,)
         """
-        board_tensor = board_to_tensor(board)
+        flip = not board.turn
+        board_tensor = board_to_tensor(board, flip)
         raw_policy, raw_value = self.ort_session.run(
             None, {"input": board_tensor.reshape(1, 18, 8, 8)}
         )

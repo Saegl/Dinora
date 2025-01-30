@@ -20,7 +20,8 @@ FENS = [
 
 
 def test_shape_and_type():
-    tensor = board_to_tensor(chess.Board())
+    flip = False
+    tensor = board_to_tensor(chess.Board(), flip)
     assert tensor.shape == (18, 8, 8)
     assert tensor.dtype == np.float32
 
@@ -28,8 +29,9 @@ def test_shape_and_type():
 @pytest.mark.parametrize("fen", FENS)
 def test_compact(fen):
     board = chess.Board(fen=fen)
+    flip = not board.turn
 
-    compact_state = board_to_compact_state(board)
+    compact_state = board_to_compact_state(board, flip)
     board_tensor = compact_state_to_board_tensor(compact_state)
 
-    assert np.allclose(board_tensor, board_to_tensor(board))
+    assert np.allclose(board_tensor, board_to_tensor(board, flip))
