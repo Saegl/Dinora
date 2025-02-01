@@ -12,6 +12,7 @@ calculating best move.
 - Convolutional Neural network in pytorch
 - Monte Carlo Tree search + Tree visualization tool
 - Supervised learning from pgns with Stockfish evals annotation
+- Supervised learning solely from game outcome (Without stockfish evals)
 - Current dataset made from [lichess elite database](https://database.nikonoel.fr/)
 - UCI interface: Play using GUI programs or online on [lichess](https://lichess.org/@/Dinora)
 - Multi-backend architecture to swap search strategies (Simple MCTS, Extended
@@ -19,7 +20,6 @@ MCTS) and position evaluators (pytorch, onnx)
 
 #### Work in progress
 - MCTS with Virtual Loss to improve parallelization
-- Supervised learning solely from game outcome (Without stockfish evals)
 - Reinforcement learning 
 - More NN models (Smaller Convnet, Transformers)
 
