@@ -1,6 +1,6 @@
 [project]
 name = "dinora"
-version = "0.0.3"
+version = "0.2.3"
 description = "Dinora Chess Engine"
 readme = "README.md"
 keywords = ["chess", "uci", "ai", "pytorch"]
