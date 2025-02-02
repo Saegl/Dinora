@@ -17,6 +17,8 @@ import numpy.typing as npt
 npf32 = npt.NDArray[np.float32]
 npuint64 = npt.NDArray[np.uint64]
 
+# Divide with this constant to normalize (set range to [0:1])
+MAX_HALFMOVES = 100  # For 50 Move Rule
 
 PLANE_NAMES = [
     "WHITE KING",
@@ -84,7 +86,7 @@ def board_to_tensor(board: chess.Board, flip: bool) -> npf32:
         tensor[15].fill(1.0)
 
     # Set fifty move counter [16: 17)
-    tensor[16].fill(float(board.halfmove_clock))
+    tensor[16].fill(board.halfmove_clock / MAX_HALFMOVES)
 
     # Set en passant square [17: 18)
     if board.has_legal_en_passant():
@@ -142,7 +144,7 @@ def compact_state_to_board_tensor(array: npuint64) -> npf32:
         configs[3].fill(1.0)
 
     # Set fifty move counter [16: 17)
-    configs[4].fill(float(halfmove))
+    configs[4].fill(halfmove / MAX_HALFMOVES)
 
     # Set en passant square [17: 18)
     # print(en_passant)
