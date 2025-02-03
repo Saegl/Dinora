@@ -13,6 +13,8 @@ data/treeviz/*
 data/elo_estimator/
 data/rl_data/
 !data/treeviz/.gitkeep
+data/cploss/*
+!data/cploss/.gitkeep
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
