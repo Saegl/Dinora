@@ -5,32 +5,32 @@ Mastering the game of Go without human knowledge, Silver et al.
 'The input features st are processed by a residual tower that consists of a single
 convolutional block followed by either 19 or 39 residual blocks.
 The convolutional block applies the following modules:
-(1) A convolution of 256 filters of kernel size 3 ×​3 with stride 1
+(1) A convolution of 256 filters of kernel size 3 × 3 with stride 1
 (2) Batch normalization 18
 (3) A rectifier nonlinearity
 Each residual block applies the following modules sequentially to its input:
-(1) A convolution of 256 filters of kernel size 3 ×​3 with stride 1
+(1) A convolution of 256 filters of kernel size 3 × 3 with stride 1
 (2) Batch normalization
 (3) A rectifier nonlinearity
-(4) A convolution of 256 filters of kernel size 3 ×​3 with stride 1
+(4) A convolution of 256 filters of kernel size 3 × 3 with stride 1
 (5) Batch normalization
 (6) A skip connection that adds the input to the block
 (7) A rectifier nonlinearity
 The output of the residual tower is passed into two separate ‘heads’ for
 computing the policy and value. The policy head applies the following modules:
-(1) A convolution of 2 filters of kernel size 1 ×​1 with stride 1
+(1) A convolution of 2 filters of kernel size 1 × 1 with stride 1
 (2) Batch normalization
 (3) A rectifier nonlinearity
-(4) A fully connected linear layer that outputs a vector of size 192 +​ 1 =​ 362,
+(4) A fully connected linear layer that outputs a vector of size 192 + 1 = 362,
 corresponding to logistic probabilities for all intersections and the pass move
 The value head applies the following modules:
-(1) A convolution of 1 filter of kernel size 1 ×​1 with stride 1
+(1) A convolution of 1 filter of kernel size 1 × 1 with stride 1
 (2) Batch normalization
 (3) A rectifier nonlinearity
 (4) A fully connected linear layer to a hidden layer of size 256
 (5) A rectifier nonlinearity
 (6) A fully connected linear layer to a scalar
-(7) A tanh nonlinearity outputting a scalar in the range [−​1, 1]
+(7) A tanh nonlinearity outputting a scalar in the range [−1, 1]
 The overall network depth, in the 20- or 40-block network, is 39 or 79 parameterized layers, respectively,
 for the residual tower, plus an additional 2 layers for the policy head and 3 layers for the value head.
 We note that a different variant of residual networks was simultaneously applied
