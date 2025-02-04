@@ -1,0 +1,44 @@
+{
+    "max_games": 40,
+    "min_phi": 20.0,
+    "min_mu": 1200,
+    "teacher_player": {
+        "class": "StockfishPlayer",
+        "start_rating": {
+            "phi": 10
+        },
+        "init": {
+            "command": "stockfish",
+            "options": {},
+            "time_limit": 1.0
+        }
+    },
+    "student_player": {
+        "class": "UCIPlayer",
+        "start_rating": {
+            "mu": 2300,
+            "phi": 350
+        },
+        "init": {
+            "command": [
+                "python",
+                "-m",
+                "dinora",
+                "--searcher",
+                "mcts_vloss",
+                "--model",
+                "alphanet",
+                "--device",
+                "cuda",
+                "--weights",
+                "models/alphanet_rerun-valid-state-4.ckpt"
+            ],
+            "options": {
+                "batch_size": "256",
+                "virtual_loss": "30",
+                "max_collisions": "35"
+            },
+            "time_limit": 1.0
+        }
+    }
+}
