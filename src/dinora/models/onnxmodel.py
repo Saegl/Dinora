@@ -45,5 +45,15 @@ class OnnxModel(NNWrapper):
         )
         return raw_policy[0], raw_value[0]
 
+    def raw_batch_outputs(self, boards: list[chess.Board]) -> tuple[npf32, npf32]:
+        batch = []
+        for board in boards:
+            batch.append(board_to_tensor(board, not board.turn))
+
+        batch_np = np.array(batch)
+        raw_policy, raw_value = self.ort_session.run(None, {"input": batch_np})
+
+        return raw_policy, raw_value
+
     def reset(self) -> None:
         pass
