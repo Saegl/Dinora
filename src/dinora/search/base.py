@@ -14,6 +14,7 @@ class ConfigType(enum.Enum):
     Float = enum.auto()
     String = enum.auto()
     Boolean = enum.auto()
+    Integer = enum.auto()
 
     def convert(self, data: str) -> Any:
         match self:
@@ -23,6 +24,8 @@ class ConfigType(enum.Enum):
                 return data
             case ConfigType.Boolean:
                 return bool(data)
+            case ConfigType.Integer:
+                return int(data)
 
 
 class BaseSearcher(abc.ABC):

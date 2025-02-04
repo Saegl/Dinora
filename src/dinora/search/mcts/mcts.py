@@ -82,7 +82,7 @@ class MCTS(BaseSearcher):
 
     def config_schema(self) -> dict[str, tuple[ConfigType, DefaultValue]]:
         return {
-            "first_n_moves": (ConfigType.Float, "15.0"),  # TODO: ConfigType.Int?
+            "first_n_moves": (ConfigType.Integer, "15"),
             "dirichlet_alpha": (ConfigType.Float, "0.3"),
             "noise_eps": (ConfigType.Float, "0.0"),
         }

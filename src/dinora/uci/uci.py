@@ -59,6 +59,8 @@ class UciState:
                     uci_type_name = "string"
                 case ConfigType.Float:
                     uci_type_name = "string"
+                case ConfigType.Integer:
+                    uci_type_name = "spin"
                 case _:
                     raise Exception("Cannot convert config_type to uci_type")
             send(f"option name {name} type {uci_type_name} default {default}")
