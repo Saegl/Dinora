@@ -4,7 +4,7 @@ import chess
 import numpy as np
 import numpy.typing as npt
 
-from dinora.encoders.policy import extract_prob_from_policy
+from dinora.encoders.policy import extract_logit
 from dinora.models.base import BaseModel, Evaluation
 
 npf32 = npt.NDArray[np.float32]
@@ -30,12 +30,12 @@ class NNWrapper(BaseModel, ABC):
         """
 
     def nn_evaluate(self, board: chess.Board) -> Evaluation:
-        get_prob = extract_prob_from_policy
-
         raw_policy, raw_value = self.raw_outputs(board)
 
         moves = list(board.legal_moves)
-        move_logits = [get_prob(raw_policy, move, not board.turn) for move in moves]
+        move_logits = [
+            extract_logit(raw_policy, move, not board.turn) for move in moves
+        ]
 
         move_priors = softmax(np.array(move_logits))
         priors = dict(zip(moves, move_priors))

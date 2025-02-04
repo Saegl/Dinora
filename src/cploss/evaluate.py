@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 from dinora.encoders.board_representation import compact_state_to_board_tensor
-from dinora.encoders.policy import extract_prob_from_policy
+from dinora.encoders.policy import extract_logit
 from dinora.models import model_selector
 from dinora.models.alphanet import AlphaNet
 
@@ -37,7 +37,7 @@ def calc_policy_cploss(model, positions, policy_boards, batch_size: int) -> floa
 
             move_logits = np.array(
                 [
-                    extract_prob_from_policy(policy[i], chess.Move.from_uci(move), flip)
+                    extract_logit(policy[i], chess.Move.from_uci(move), flip)
                     for move in uci_moves
                 ]
             )

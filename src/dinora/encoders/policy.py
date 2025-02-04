@@ -17,10 +17,11 @@ UCI move format is
 Also note, to reduce possible NN inputs and increase training speed,
 NN see board only from white perspective.
 So when we want to make NN inference for black perspective
--> we have to flip board over horizontal line 
+-> we have to flip board over horizontal line
 (white becomes black and black becomes white),
 after this flip, all prior probabilites from NN also comes flipped.
 """
+
 from collections.abc import Iterable
 from itertools import chain, product
 
@@ -172,7 +173,7 @@ def index_to_move(index: int, flip: bool) -> str:
     return INDEX_TO_FLIPPED_MOVE[index] if flip else INDEX_TO_MOVE[index]
 
 
-def extract_prob_from_policy(
+def extract_logit(
     policy: npt.NDArray[np.float32],
     move: chess.Move,
     flip: bool,
