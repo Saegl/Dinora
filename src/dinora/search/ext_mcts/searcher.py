@@ -15,7 +15,7 @@ class ExtMcts(BaseSearcher):
         return {
             "fpu": (ConfigType.Float, "-1.0"),
             "fpu_at_root": (ConfigType.Float, "0.0"),
-            "selection_policy": (ConfigType.String, "puct"),
+            "selection_policy_name": (ConfigType.String, "puct"),
             "cpuct": (ConfigType.Float, "3.0"),
             "t": (ConfigType.Float, "1.0"),
             "dirichlet_alpha": (ConfigType.Float, "0.3"),
