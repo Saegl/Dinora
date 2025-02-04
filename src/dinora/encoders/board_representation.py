@@ -10,6 +10,8 @@ Board tensor in NCHW format:
 Array weight is 18 * 8 * 8 * 4 = 4608 bytes, where 4 is float32
 """
 
+import typing
+
 import chess
 import numpy as np
 import numpy.typing as npt
@@ -63,26 +65,25 @@ assert len(PIECE_INDEX) == 12
 
 def board_to_tensor(board: chess.Board, flip: bool) -> npf32:
     "Convert current state (chessboard) to tensor"
-    if flip:
-        board = board.mirror()
-
     tensor = np.zeros((18, 8, 8), np.float32)
 
     # Set pieces [0: 12)
-    for square in chess.SQUARES:
-        piece = board.piece_at(square)
-        if piece:
-            index = PIECE_INDEX[piece.piece_type, piece.color]
-            tensor[index][square // 8][(square % 8)] = 1.0
+    for square in chess.scan_reversed(board.occupied):
+        file, rank = divmod(square, 8)
+        piece = typing.cast(chess.Piece, board.piece_at(square))
+        index = PIECE_INDEX[piece.piece_type, piece.color ^ flip]
+        if flip:
+            file = 7 - file
+        tensor[index, file, rank] = 1.0
 
     # Set castling rights [12: 16)
-    if board.castling_rights & chess.BB_H1:
+    if board.castling_rights & (chess.BB_H8 if flip else chess.BB_H1):
         tensor[12].fill(1.0)
-    if board.castling_rights & chess.BB_A1:
+    if board.castling_rights & (chess.BB_A8 if flip else chess.BB_A1):
         tensor[13].fill(1.0)
-    if board.castling_rights & chess.BB_H8:
+    if board.castling_rights & (chess.BB_H1 if flip else chess.BB_H8):
         tensor[14].fill(1.0)
-    if board.castling_rights & chess.BB_A8:
+    if board.castling_rights & (chess.BB_A1 if flip else chess.BB_A8):
         tensor[15].fill(1.0)
 
     # Set fifty move counter [16: 17)
@@ -91,7 +92,10 @@ def board_to_tensor(board: chess.Board, flip: bool) -> npf32:
     # Set en passant square [17: 18)
     if board.has_legal_en_passant():
         assert board.ep_square
-        tensor[17][board.ep_square // 8][board.ep_square % 8] = 1.0
+        file, rank = divmod(board.ep_square, 8)
+        if flip:
+            file = 7 - file
+        tensor[17, file, rank] = 1.0
 
     return tensor
 
