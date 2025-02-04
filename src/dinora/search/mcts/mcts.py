@@ -113,4 +113,5 @@ class MCTS(BaseSearcher):
             expand(leaf, priors)
             backpropagate(leaf, value, board)
 
+        print(f"info nodes {root.visits}")
         return most_visits_move(root)
