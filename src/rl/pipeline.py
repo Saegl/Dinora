@@ -11,12 +11,12 @@ import torch
 from lightning.pytorch.loggers import WandbLogger
 
 import wandb
+from dataset.make import convert_dir as dataset_convert_dir
 from dinora import PROJECT_ROOT
 from dinora.engine import Engine
 from dinora.models.alphanet import AlphaNet
 from dinora.search.mcts.mcts import MCTS
 from dinora.search.stoppers import NodesCount
-from dinora.train.compact_dataset.make import convert_dir as dataset_convert_dir
 from dinora.train.datamodules import CompactDataModule
 
 

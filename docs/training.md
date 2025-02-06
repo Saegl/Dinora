@@ -86,12 +86,12 @@ and upload to wandb
 ```bash
 mkdir dataset_np
 # Took 40 minutes on my computer, 186MB of disk space
-uv run python -m dinora make_dataset example_dataset/ dataset_np/ --q-nodes 100
+uv run python -m dataset make example_dataset/ dataset_np/ --q-nodes 100
 
 # login to wandb first
 wandb login
 # Upload dataset to wandb
-uv run python -m dinora upload_dataset dataset_np/ "traindocs"
+uv run python -m dataset upload dataset_np/ "traindocs"
 
 # In my case, uploaded to "saegl/dinora-chess/traindocs:v0" wandb label
 ```

@@ -11,7 +11,7 @@ if typing.TYPE_CHECKING:
 
 def build_parser(subparsers: Subparsers) -> None:
     parser = subparsers.add_parser(
-        name="upload_dataset", help="Tool to upload dataset to wandb"
+        name="upload", help="Tool to upload dataset to wandb"
     )
     parser.add_argument(
         "dataset_dir",
@@ -26,6 +26,6 @@ def build_parser(subparsers: Subparsers) -> None:
 
 
 def run_cli(args: Args) -> None:
-    from dinora.train.compact_dataset.upload import upload_dataset
+    from dataset.upload import upload_dataset
 
     upload_dataset(args.dataset_dir, args.wandb_label)

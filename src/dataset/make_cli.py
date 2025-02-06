@@ -27,7 +27,7 @@ if typing.TYPE_CHECKING:
 
 def build_parser(subparsers: Subparsers) -> None:
     parser = subparsers.add_parser(
-        name="make_dataset", help="Tool to convert pgns to compact dataset"
+        name="make", help="Tool to convert pgns to compact dataset"
     )
     parser.add_argument(
         "pgn_dir",
@@ -71,7 +71,7 @@ def build_parser(subparsers: Subparsers) -> None:
 
 
 def run_cli(args: Args) -> None:
-    from dinora.train.compact_dataset.make import convert_dir
+    from dataset.make import convert_dir
 
     convert_dir(
         args.pgn_dir,
