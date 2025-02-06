@@ -4,15 +4,17 @@ import argparse
 import pathlib
 import typing
 
-from dinora.bench.selfplay import selfplay
+from bench.selfplay import selfplay
 
 if typing.TYPE_CHECKING:
     Subparsers = argparse._SubParsersAction[argparse.ArgumentParser]
     Args = argparse.Namespace
 
 
-def build_parser(subparsers: Subparsers) -> None:
-    parser = subparsers.add_parser(name="bench", help="Benchmark speed of engine")
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="bench", description="Benchmark speed of engine"
+    )
     parser.add_argument(
         "--model",
         default="alphanet",
@@ -27,6 +29,7 @@ def build_parser(subparsers: Subparsers) -> None:
         "--device",
         type=str,
     )
+    return parser
 
 
 def run_cli(args: Args) -> None:

@@ -1,6 +1,5 @@
 import argparse
 
-import dinora.bench.cli as bench_cli
 import dinora.onnx.cli as onnx_cli
 import dinora.train.compact_dataset.make_cli as make_dataset_cli
 import dinora.train.compact_dataset.upload_cli as upload_dataset_cli
@@ -18,8 +17,6 @@ def run_cli() -> None:
         make_dataset_cli.run_cli(args)
     elif args.subcommand == "upload_dataset":
         upload_dataset_cli.run_cli(args)
-    elif args.subcommand == "bench":
-        bench_cli.run_cli(args)
     elif args.subcommand == "export_onnx":
         onnx_cli.run_cli(args)
     else:
@@ -33,7 +30,6 @@ def build_root_cli() -> argparse.ArgumentParser:
     treeviz_cli.build_parser(subparsers)
     make_dataset_cli.build_parser(subparsers)
     upload_dataset_cli.build_parser(subparsers)
-    bench_cli.build_parser(subparsers)
     onnx_cli.build_parser(subparsers)
 
     return parser
