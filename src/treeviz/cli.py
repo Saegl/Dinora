@@ -10,15 +10,14 @@ from dinora import PROJECT_ROOT
 from dinora.engine import Engine
 
 if typing.TYPE_CHECKING:
-    Subparsers = argparse._SubParsersAction[argparse.ArgumentParser]
     Args = argparse.Namespace
 
 
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "data/treeviz"
 
 
-def build_parser(subparsers: Subparsers) -> None:
-    parser = subparsers.add_parser(name="treeviz", help="Render MCTS tree")
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="treeviz", description="Render MCTS tree")
     parser.add_argument(
         "--model",
         help="Name of the model to use",
@@ -76,10 +75,11 @@ def build_parser(subparsers: Subparsers) -> None:
         help="Output image format svg/png",
     )
     parser.add_argument("--selection-policy-name", default="")
+    return parser
 
 
 def run_cli(args: Args) -> None:
-    from dinora.viz.treeviz import RenderParams, render_state
+    from treeviz.treeviz import RenderParams, render_state
 
     engine = Engine("ext_mcts", args.model, args.weights, args.device)
     engine.load_model()
