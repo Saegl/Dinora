@@ -58,3 +58,9 @@ def run_cli(args: Args) -> None:
 
         with open("dinora.log", encoding="utf8") as f:
             print(f.read())
+
+
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
+    run_cli(args)
