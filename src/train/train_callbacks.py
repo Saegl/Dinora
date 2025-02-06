@@ -11,7 +11,7 @@ from lightning.pytorch.callbacks import Callback
 from PIL import Image
 
 import wandb
-from dinora.train.handmade_val_dataset.dataset import POSITIONS
+from train.handmade_val_dataset.dataset import POSITIONS
 
 
 class SampleGameGenerator(Callback):

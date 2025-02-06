@@ -1,6 +1,6 @@
 import chess
 
-from dinora.train.handmade_val_dataset.dataset import POSITIONS
+from train.handmade_val_dataset.dataset import POSITIONS
 
 
 def test_sanity():

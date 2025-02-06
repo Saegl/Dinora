@@ -13,8 +13,8 @@ from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.tuner import Tuner  # type: ignore
 
 from dinora import PROJECT_ROOT
-from dinora.train.datamodules import WandbDataModule
-from dinora.train.train_callbacks import (
+from train.datamodules import WandbDataModule
+from train.train_callbacks import (
     BoardsEvaluator,
     SampleGameGenerator,
     ValidationCheckpointer,

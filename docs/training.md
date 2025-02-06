@@ -106,7 +106,7 @@ notebook. In both cases progress will be tracked by wandb.
 Example configs are in `configs/train/` folder
 
 Annotated example below (don't include comments in actual config)  
-Or read `src/dinora/train/fit.py`
+Or read `src/train/fit.py`
 ```jsonc
 {
     "matmul_precision": "medium",
@@ -159,7 +159,7 @@ Or read `src/dinora/train/fit.py`
 ### Option 1: From terminal
 
 ```bash
-uv run python -m dinora.train.fit <path-to-config>
+uv run python -m train.fit <path-to-config>
 ```
 
 ### Option 2: From jupyter notebook

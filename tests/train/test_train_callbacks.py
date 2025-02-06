@@ -3,7 +3,7 @@ import pytest
 from lightning.pytorch.loggers import Logger
 
 from dinora.models.alphanet import AlphaNet
-from dinora.train.train_callbacks import (
+from train.train_callbacks import (
     BoardsEvaluator,
     SampleGameGenerator,
     ValidationCheckpointer,

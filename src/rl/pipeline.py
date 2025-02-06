@@ -17,7 +17,7 @@ from dinora.engine import Engine
 from dinora.models.alphanet import AlphaNet
 from dinora.search.mcts.mcts import MCTS
 from dinora.search.stoppers import NodesCount
-from dinora.train.datamodules import CompactDataModule
+from train.datamodules import CompactDataModule
 
 
 @dataclass
