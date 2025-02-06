@@ -28,6 +28,7 @@ dependencies = [
     "pylru>=1.2.1",
     "tqdm>=4.66.5",
     "wandb>=0.18.1",
+    "onnx>=1.17.0",
 ]
 
 
