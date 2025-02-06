@@ -7,7 +7,7 @@ import traceback
 import typing
 
 from dinora.engine import Engine
-from dinora.uci.uci import UciState
+from dinora.uci.uci import uci_start
 
 if typing.TYPE_CHECKING:
     Subparsers = argparse._SubParsersAction[argparse.ArgumentParser]
@@ -42,8 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
 def run_cli(args: Args) -> None:
     try:
         engine = Engine(args.searcher, args.model, args.weights, args.device)
-        uci_state = UciState(engine)
-        uci_state.loop()
+        uci_start(engine)
+
     except SystemExit:
         pass
     except KeyboardInterrupt:

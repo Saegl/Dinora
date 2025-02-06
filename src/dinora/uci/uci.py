@@ -1,10 +1,14 @@
 import contextlib
+import queue
 import sys
+import threading
+from dataclasses import dataclass
 
 import chess
 
 from dinora.engine import Engine, ParamNotFound
 from dinora.search.base import ConfigType
+from dinora.search.stoppers import Stopper
 from dinora.uci.uci_go_parser import parse_go_params
 
 
@@ -14,19 +18,100 @@ def send(s: str) -> None:
     sys.stdout.flush()
 
 
-class UciState:
-    def __init__(self, engine: Engine) -> None:
+class UciCommand:
+    """Command sent by UciLoop"""
+
+
+@dataclass
+class Go(UciCommand):
+    board: chess.Board
+    stopper: Stopper
+
+
+@dataclass
+class SetOption(UciCommand):
+    name: str
+    value: str
+
+
+@dataclass
+class IsReady(UciCommand):
+    pass
+
+
+@dataclass
+class Quit(UciCommand):
+    pass
+
+
+def uci_start(engine: Engine):
+    commands_queue: queue.Queue[UciCommand] = queue.Queue()
+    uciloop = UciCommunicator(
+        commands_queue,
+        engine.get_config_schema(),
+    )
+    uciengine = UciEngine(commands_queue, engine)
+
+    controller_thread = threading.Thread(target=uciengine.loop)
+    controller_thread.start()
+
+    uciloop.start_communication()
+
+
+@dataclass
+class UciEngine:
+    commands_queue: queue.Queue[UciCommand]
+    engine: Engine
+
+    def loop(self):
+        running = True
+        while running:
+            command = self.commands_queue.get()
+            match command:
+                case IsReady():
+                    self.engine.load_model()
+
+                case Go(board, stopper):
+                    move = self.engine.get_best_move(board, stopper)
+                    send(f"bestmove {move}")
+                    stopper.early_stop.set()
+                case SetOption(name, value):
+                    with contextlib.suppress(ParamNotFound):
+                        self.engine.set_config_param(name, value)
+                case Quit():
+                    running = False
+
+            self.commands_queue.task_done()
+            if not running:
+                break
+
+
+class UciCommunicator:
+    commands_queue: queue.Queue[UciCommand]
+    config_schema: dict
+    active_stopper: Stopper | None
+    board: chess.Board
+    running: bool
+
+    def __init__(self, commands_queue: queue.Queue[UciCommand], config_schema):
+        self.commands_queue = commands_queue
+        self.config_schema = config_schema
+        self.active_stopper = None
         self.board = chess.Board()
-        self.engine = engine
+        self.running = True
 
-    def load_model(self) -> None:
-        if not self.engine.loaded():
-            send("info string loading nn, it make take a while")
-            self.engine.load_model()
-            send("info string nn is loaded")
-            send(f"info string model name: {self.engine.model.name()}")
+    def start_communication(self):
+        send("Dinora chess engine")
+        while self.running:
+            try:
+                line = input()
+            except KeyboardInterrupt:
+                self.quit([])
+                break
 
-    def dispatcher(self, line: str) -> None:
+            self.dispatcher(line)
+
+    def dispatcher(self, line: str):
         command, *tokens = line.strip().split()
         supported_commands = [
             "uci",
@@ -35,6 +120,7 @@ class UciState:
             "isready",
             "position",
             "go",
+            "stop",
             "quit",
         ]
         if command in supported_commands:
@@ -43,17 +129,10 @@ class UciState:
         else:
             send(f"info string command is not processed: {line}")
 
-    def loop(self) -> None:
-        send("Dinora chess engine")
-        while True:
-            line = input()
-            self.dispatcher(line)
-
-    ### UCI Commands:
     def uci(self, _: list[str]) -> None:
         send("id name Dinora")
         send("id author Saegl")
-        for name, (config_type, default) in self.engine.get_config_schema().items():
+        for name, (config_type, default) in self.config_schema.items():
             match config_type:
                 case ConfigType.String:
                     uci_type_name = "string"
@@ -67,17 +146,15 @@ class UciState:
         send("uciok")
 
     def ucinewgame(self, _: list[str]) -> None:
-        self.load_model()
         self.board = chess.Board()
 
     def setoption(self, tokens: list[str]) -> None:
         name = tokens[tokens.index("name") + 1].lower()
         value = tokens[tokens.index("value") + 1]
-        with contextlib.suppress(ParamNotFound):
-            self.engine.set_config_param(name, value)
+        self.commands_queue.put(SetOption(name, value))
 
     def isready(self, _: list[str]) -> None:
-        self.load_model()
+        self.commands_queue.put(IsReady())
         send("readyok")
 
     def position(self, tokens: list[str]) -> None:
@@ -93,16 +170,24 @@ class UciState:
             self.board = chess.Board(fen)
 
     def go(self, tokens: list[str]) -> None:
-        self.load_model()
+        if self.active_stopper and not self.active_stopper.early_stop.is_set():
+            raise Exception("Can't run second `go`")
+
+        self.commands_queue.put(IsReady())
 
         go_params = parse_go_params(tokens)
         send(f"info string parsed params {go_params}")
 
-        stopper = go_params.get_search_stopper(self.board)
-        send(f"info string chosen stopper {stopper}")
+        self.active_stopper = go_params.get_search_stopper(self.board)
+        send(f"info string chosen stopper {self.active_stopper}")
 
-        move = self.engine.get_best_move(self.board, stopper)
-        send(f"bestmove {move}")
+        self.commands_queue.put(Go(self.board.copy(), self.active_stopper))
+
+    def stop(self, tokens: list[str]) -> None:
+        if self.active_stopper and not self.active_stopper.early_stop.is_set():
+            self.active_stopper.early_stop.set()
 
     def quit(self, _: list[str]) -> None:
-        sys.exit(0)
+        self.stop([])
+        self.commands_queue.put(Quit())
+        self.running = False

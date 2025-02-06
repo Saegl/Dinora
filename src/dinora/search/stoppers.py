@@ -1,19 +1,24 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+import threading
 from math import cos
 from time import time
 
 extra_time = 0.5
 
 
-class Stopper(ABC):
+class Stopper:
     """
     Stoppers controll when to stop searching
     """
 
-    @abstractmethod
+    def __init__(self):
+        self.early_stop = threading.Event()
+        self.called = False
+
     def should_stop(self) -> bool:
-        pass
+        if not self.called:  # Calculate minimum 1 node
+            self.called = True
+            return False
+        return self.early_stop.is_set()
 
 
 def time_manager(moves_number: int, time_left: int, inc: int = 0) -> float:
@@ -30,39 +35,50 @@ class Time(Stopper):
         engine_time: int,
         engine_inc: int,
     ) -> None:
+        super().__init__()
         self.move_time = time_manager(moves_number, engine_time, engine_inc)
         self.starttime = time()
         self.steps = 0
 
     def should_stop(self) -> bool:
-        if self.steps < 2:  # Calculate minimum 2 nodes
-            self.steps += 1
-            return False
+        if super().should_stop():
+            return True
         return time() - self.starttime > self.move_time
 
     def __str__(self) -> str:
         return f"<Time: {self.move_time=} {self.starttime=}>"
 
 
-@dataclass
 class MoveTime(Stopper):
     movetime: int
-    starttime: float = field(default_factory=time)
-    movetime_seconds: float = field(init=False)
+    starttime: float
 
-    def __post_init__(self) -> None:
-        self.movetime_seconds = self.movetime / 1000
+    def __init__(self, movetime: int) -> None:
+        super().__init__()
+        self.movetime = movetime
+        self.starttime = time()
 
     def should_stop(self) -> bool:
+        if not self.called:
+            self.called = True
+            return False
+        if super().should_stop():
+            return True
         return time() - self.starttime > (self.movetime / 1000)
+
+    def __str__(self) -> str:
+        return f"<MoveTime: {self.movetime=} {self.starttime=}>"
 
 
 class NodesCount(Stopper):
     def __init__(self, count: int) -> None:
+        super().__init__()
         self.step = 0
         self.count = count
 
     def should_stop(self) -> bool:
+        if super().should_stop():
+            return True
         self.step += 1
         return self.count < self.step
 
@@ -71,8 +87,11 @@ class NodesCount(Stopper):
 
 
 class Infinite(Stopper):
+    def __init__(self):
+        super().__init__()
+
     def should_stop(self) -> bool:
-        return False
+        return super().should_stop()
 
     def __str__(self) -> str:
         return "<Infinite 8>"
