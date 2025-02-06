@@ -50,12 +50,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
-select = [
+lint.select = [
     "E", "F", "I", "W", "E", "C", "PIE",
     "T20", "ISC", "A", "B", "S", "T10", "Q",
     "RSE", "RET", "SIM", "PTH", "ERA", "UP"
 ]
-ignore = [
+lint.ignore = [
     "E501", # line too long
     "B905", # zip() without an explicit strict= parameter
     "S311", # Standard pseudo-random generators are not suitable for cryptographic purposes

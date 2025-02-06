@@ -1,7 +1,7 @@
 """
 Steps to make your own dataset from pgn games:
 1. Download your pgn to data/<folder_name>/<your.pgn>
-2. Split your pgn to smaller parts of 10k games each with 
+2. Split your pgn to smaller parts of 10k games each with
 `pgn-extract.exe -#10000 <your.pgn>` and place it under
 data/<folder_name2>
 3. Install deps for this script
@@ -13,6 +13,7 @@ the resulting dataset
 5. Now you can train neural network with this dataset, use <folder_name3>
 as `dataset_label` in dinora.train
 """
+
 from __future__ import annotations
 
 import argparse

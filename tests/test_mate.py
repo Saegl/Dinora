@@ -6,6 +6,7 @@ And even if it finds mate, it doesn't have to be shortest mate
 These tests are useful to check `reduction` for nodes,
 but if they fails, it could be false positive
 """
+
 import chess
 import pytest
 

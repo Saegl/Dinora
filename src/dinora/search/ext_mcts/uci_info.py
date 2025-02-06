@@ -25,9 +25,7 @@ def send_info(
 ) -> None:
     if send is not None:
         send(
-            "info score cp {} nodes {} nps {} pv {}".format(
-                score, count, int(round(count / (delta + NONZERO), 0)), pv
-            )
+            f"info score cp {score} nodes {count} nps {int(round(count / (delta + NONZERO), 0))} pv {pv}"
         )
 
 
@@ -35,12 +33,7 @@ def send_tree_info(send: Callable[[str], None], root: Node) -> None:
     if send is not None:
         for nd in sorted(root.children.items(), key=lambda item: item[1].number_visits):
             send(
-                "info string {} {} \t(P: {}%) \t(Q: {})".format(
-                    nd[1].move,
-                    nd[1].number_visits,
-                    round(nd[1].prior * 100, 2),
-                    round(nd[1].q(), 5),
-                )
+                f"info string {nd[1].move} {nd[1].number_visits} \t(P: {round(nd[1].prior * 100, 2)}%) \t(Q: {round(nd[1].q(), 5)})"
             )
 
 

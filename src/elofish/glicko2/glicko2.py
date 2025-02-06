@@ -1,12 +1,13 @@
 """
-    glicko2
-    ~~~~~~~
+glicko2
+~~~~~~~
 
-    The Glicko2 rating system.
+The Glicko2 rating system.
 
-    :copyright: (c) 2012 by Heungsub Lee
-    :license: BSD, see LICENSE for more details.
+:copyright: (c) 2012 by Heungsub Lee
+:license: BSD, see LICENSE for more details.
 """
+
 import math
 
 __version__ = "0.0.dev"
