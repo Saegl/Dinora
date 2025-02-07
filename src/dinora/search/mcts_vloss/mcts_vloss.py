@@ -58,22 +58,24 @@ def undo_virtual_loss(node: Node, virtual_loss: int) -> None:
         current.visits -= virtual_loss
 
 
-def select_leaf(root: Node, board: chess.Board, virtual_loss: int) -> Node:
+def select_leaf(
+    root: Node, board: chess.Board, cpuct: float, virtual_loss: int
+) -> Node:
     current = root
     current.visits += virtual_loss
     while current.is_expanded():
-        move, current = select_child(current)
+        move, current = select_child(current, cpuct)
         current.visits += virtual_loss
         board.push(move)
     return current
 
 
-def select_child(node: Node) -> tuple[chess.Move, Node]:
-    return max(node.children.items(), key=lambda el: ucb_score(node, el[1]))
+def select_child(node: Node, cpuct: float) -> tuple[chess.Move, Node]:
+    return max(node.children.items(), key=lambda el: ucb_score(node, el[1], cpuct))
 
 
-def ucb_score(parent: Node, child: Node) -> float:
-    exploration = 1.25 * child.prior * math.sqrt(parent.visits) / (child.visits + 1)
+def ucb_score(parent: Node, child: Node, cpuct: float) -> float:
+    exploration = cpuct * child.prior * math.sqrt(parent.visits) / (child.visits + 1)
     return child.value() + exploration
 
 
@@ -130,7 +132,9 @@ class MCTSVloss(BaseSearcher):
 
             for _ in range(self.params.batch_size):
                 leaf_board = root_board.copy()
-                leaf = select_leaf(root, leaf_board, self.params.virtual_loss)
+                leaf = select_leaf(
+                    root, leaf_board, self.params.cpuct, self.params.virtual_loss
+                )
                 term_val = terminal_val(leaf_board)
 
                 if not leaf.in_batch:

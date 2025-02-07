@@ -52,22 +52,22 @@ def backpropagate(node: Node, value: float, board: chess.Board) -> None:
     current.visits += 1
 
 
-def select_leaf(root: Node, board: chess.Board) -> Node:
+def select_leaf(root: Node, board: chess.Board, cpuct: float) -> Node:
     current = root
 
     while current.is_expanded():
-        move, current = select_child(current)
+        move, current = select_child(current, cpuct)
         board.push(move)
 
     return current
 
 
-def select_child(node: Node) -> tuple[chess.Move, Node]:
-    return max(node.children.items(), key=lambda el: ucb_score(node, el[1]))
+def select_child(node: Node, cpuct: float) -> tuple[chess.Move, Node]:
+    return max(node.children.items(), key=lambda el: ucb_score(node, el[1], cpuct))
 
 
-def ucb_score(parent: Node, child: Node) -> float:
-    exploration = 1.25 * child.prior * math.sqrt(parent.visits) / (child.visits + 1)
+def ucb_score(parent: Node, child: Node, cpuct: float) -> float:
+    exploration = cpuct * child.prior * math.sqrt(parent.visits) / (child.visits + 1)
     return child.value() + exploration
 
 
@@ -99,7 +99,7 @@ class MCTS(BaseSearcher):
 
         expand(root, priors)
         while not stopper.should_stop():
-            leaf = select_leaf(root, board)
+            leaf = select_leaf(root, board, self.params.cpuct)
             priors, value = evaluator.evaluate(board)
             expand(leaf, priors)
             backpropagate(leaf, value, board)
