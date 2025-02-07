@@ -4,7 +4,6 @@ from typing import Any
 import chess
 
 from dinora.models import BaseModel, model_selector
-from dinora.search.base import ConfigType, DefaultValue
 from dinora.search.registered import get_searcher
 from dinora.search.stoppers import Stopper
 
@@ -46,9 +45,6 @@ class Engine:
     def reset(self) -> None:
         if self._model is not None:
             self._model.reset()
-
-    def get_config_schema(self) -> dict[str, tuple[ConfigType, DefaultValue]]:
-        return self.searcher.config_schema()
 
     def set_config_param(self, name: str, value: Any) -> None:
         try:

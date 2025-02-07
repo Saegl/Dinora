@@ -1,19 +1,24 @@
+from dataclasses import dataclass
+
 import chess
 
 from dinora.models import BaseModel
-from dinora.search.base import BaseSearcher, ConfigType, DefaultValue
+from dinora.search.base import BaseSearcher
 from dinora.search.stoppers import Stopper
+
+
+@dataclass
+class Params:
+    pass
 
 
 class OneMove(BaseSearcher):
     def __init__(self) -> None:
-        pass
+        self._params = Params()
 
-    def config_schema(self) -> dict[str, tuple[ConfigType, DefaultValue]]:
-        return {}
-
-    def set_config_param(self, k: str, v: str) -> None:
-        return None
+    @property
+    def params(self):
+        return self._params
 
     def search(
         self, board: chess.Board, stopper: Stopper, evaluator: BaseModel

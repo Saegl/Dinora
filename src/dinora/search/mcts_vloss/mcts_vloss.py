@@ -5,7 +5,7 @@ import math
 import chess
 
 from dinora.models import BaseModel
-from dinora.search.base import BaseSearcher, ConfigType, DefaultValue
+from dinora.search.base import BaseSearcher
 from dinora.search.mcts_vloss.params import MCTSparams
 from dinora.search.stoppers import Stopper
 
@@ -108,20 +108,11 @@ def terminal_val(board: chess.Board) -> float | None:
 
 class MCTSVloss(BaseSearcher):
     def __init__(self) -> None:
-        self.params = MCTSparams()
+        self._params = MCTSparams()
 
-    def config_schema(self) -> dict[str, tuple[ConfigType, DefaultValue]]:
-        return {
-            "batch_size": (ConfigType.Integer, "256"),
-            "virtual_loss": (ConfigType.Integer, "40"),
-            "max_collisions": (ConfigType.Integer, "15"),
-        }
-
-    def set_config_param(self, k: str, v: str) -> None:
-        schema = self.config_schema()
-        config_type, _ = schema[k]
-        native_value = config_type.convert(v)
-        setattr(self.params, k, native_value)
+    @property
+    def params(self):
+        return self._params
 
     def search(
         self, board: chess.Board, stopper: Stopper, evaluator: BaseModel

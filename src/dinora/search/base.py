@@ -1,5 +1,5 @@
 import abc
-import enum
+from dataclasses import fields
 from typing import Any
 
 import chess
@@ -7,39 +7,22 @@ import chess
 from dinora.models.base import BaseModel
 from dinora.search.stoppers import Stopper
 
-DefaultValue = str
-
-
-class ConfigType(enum.Enum):
-    Float = enum.auto()
-    String = enum.auto()
-    Boolean = enum.auto()
-    Integer = enum.auto()
-
-    def convert(self, data: str) -> Any:
-        match self:
-            case ConfigType.Float:
-                return float(data)
-            case ConfigType.String:
-                return data
-            case ConfigType.Boolean:
-                return bool(data)
-            case ConfigType.Integer:
-                return int(data)
-
 
 class BaseSearcher(abc.ABC):
     @abc.abstractmethod
     def __init__(self) -> None:
         pass
 
+    @property
     @abc.abstractmethod
-    def config_schema(self) -> dict[str, tuple[ConfigType, DefaultValue]]:
+    def params(self) -> Any:
         pass
 
-    @abc.abstractmethod
     def set_config_param(self, k: str, v: str) -> None:
-        pass
+        for field in fields(self.params):  # linear search is fast enough for 3 params
+            assert callable(field.type)
+            if field.name == k:
+                setattr(self.params, field.name, field.type(v))
 
     @abc.abstractmethod
     def search(

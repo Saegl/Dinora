@@ -2,12 +2,12 @@ import contextlib
 import queue
 import sys
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
+from typing import Any
 
 import chess
 
 from dinora.engine import Engine, ParamNotFound
-from dinora.search.base import ConfigType
 from dinora.search.stoppers import Stopper
 from dinora.uci.uci_go_parser import parse_go_params
 
@@ -48,7 +48,7 @@ def uci_start(engine: Engine):
     commands_queue: queue.Queue[UciCommand] = queue.Queue()
     uciloop = UciCommunicator(
         commands_queue,
-        engine.get_config_schema(),
+        engine.searcher.params,
     )
     uciengine = UciEngine(commands_queue, engine)
 
@@ -88,14 +88,14 @@ class UciEngine:
 
 class UciCommunicator:
     commands_queue: queue.Queue[UciCommand]
-    config_schema: dict
+    params: Any
     active_stopper: Stopper | None
     board: chess.Board
     running: bool
 
-    def __init__(self, commands_queue: queue.Queue[UciCommand], config_schema):
+    def __init__(self, commands_queue: queue.Queue[UciCommand], params):
         self.commands_queue = commands_queue
-        self.config_schema = config_schema
+        self.params = params
         self.active_stopper = None
         self.board = chess.Board()
         self.running = True
@@ -132,17 +132,17 @@ class UciCommunicator:
     def uci(self, _: list[str]) -> None:
         send("id name Dinora")
         send("id author Saegl")
-        for name, (config_type, default) in self.config_schema.items():
-            match config_type:
-                case ConfigType.String:
-                    uci_type_name = "string"
-                case ConfigType.Float:
-                    uci_type_name = "string"
-                case ConfigType.Integer:
-                    uci_type_name = "spin"
-                case _:
-                    raise Exception("Cannot convert config_type to uci_type")
-            send(f"option name {name} type {uci_type_name} default {default}")
+        for field in fields(self.params):
+            if field.type is int:
+                uci_type_name = "spin"
+            elif field.type is float or field.type is str:
+                uci_type_name = "string"
+            else:
+                continue
+
+            send(
+                f"option name {field.name} type {uci_type_name} default {field.default}"
+            )
         send("uciok")
 
     def ucinewgame(self, _: list[str]) -> None:

@@ -6,7 +6,7 @@ import chess
 
 from dinora.models import BaseModel
 from dinora.models.base import Priors
-from dinora.search.base import BaseSearcher, ConfigType, DefaultValue
+from dinora.search.base import BaseSearcher
 from dinora.search.mcts import params
 from dinora.search.noise import apply_noise
 from dinora.search.stoppers import Stopper
@@ -78,20 +78,11 @@ def most_visits_move(root: Node) -> chess.Move:
 
 class MCTS(BaseSearcher):
     def __init__(self) -> None:
-        self.params = params.MCTSparams()
+        self._params = params.MCTSparams()
 
-    def config_schema(self) -> dict[str, tuple[ConfigType, DefaultValue]]:
-        return {
-            "first_n_moves": (ConfigType.Integer, "15"),
-            "dirichlet_alpha": (ConfigType.Float, "0.3"),
-            "noise_eps": (ConfigType.Float, "0.0"),
-        }
-
-    def set_config_param(self, k: str, v: str) -> None:
-        schema = self.config_schema()
-        config_type, _ = schema[k]
-        native_value = config_type.convert(v)
-        setattr(self.params, k, native_value)
+    @property
+    def params(self):
+        return self._params
 
     def search(
         self, board: chess.Board, stopper: Stopper, evaluator: BaseModel
