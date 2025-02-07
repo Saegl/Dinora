@@ -125,7 +125,10 @@ class UciCommunicator:
         ]
         if command in supported_commands:
             command_method = getattr(self, command)
-            command_method(tokens)
+            try:
+                command_method(tokens)
+            except Exception as e:
+                send(f"info string '{command}' failed with '{e}'")
         else:
             send(f"info string command is not processed: {line}")
 
