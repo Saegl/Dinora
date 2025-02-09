@@ -119,11 +119,13 @@ def main():
     argparser.add_argument("model_path")
     argparser.add_argument("batch_size")
     argparser.add_argument("loaddir")
+    argparser.add_argument("max_positions", nargs="?", default=99_999, type=int)
 
     args = argparser.parse_args()
 
     model_path = pathlib.Path(args.model_path)
     batch_size = int(args.batch_size)
+    max_positions = args.max_positions
 
     print("Model loading")
     model = model_selector("alphanet", model_path, "cuda")
@@ -139,6 +141,9 @@ def main():
     value_boards = np.load(value_boards_file)["boards"]
     policy_boards = np.load(boards_file)["boards"]
     positions = json.load(positions_file.open())
+    positions = positions[:max_positions]
+
+    print(f"Positions: {len(positions)}")
 
     value_cploss = calc_value_cploss(model, positions, value_boards, batch_size)
     print("Value loss", value_cploss)
