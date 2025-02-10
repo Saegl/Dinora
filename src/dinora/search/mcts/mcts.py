@@ -1,84 +1,123 @@
-from __future__ import annotations
-
 import math
+from dataclasses import dataclass, field
+from typing import Optional
 
 import chess
 
-from dinora.models import BaseModel
-from dinora.models.base import Priors
+from dinora.models.base import BaseModel
 from dinora.search.base import BaseSearcher
-from dinora.search.mcts import params
 from dinora.search.noise import apply_noise
 from dinora.search.stoppers import Stopper
 
 
+@dataclass
+class MctsParams:
+    # exploration constant
+    cpuct: float = field(default=3.0)
+    # random
+    opening_noise_moves: int = field(default=15)
+    dirichlet_alpha: float = field(default=0.3)
+    noise_eps: float = field(default=0.0)  # set to 0.0 to disable random
+
+
 class Node:
-    parent: Node | None
+    parent: Optional["Node"]
+    children: dict[chess.Move, "Node"]
+    value_sum: float
     visits: int
     prior: float
-    children: dict[chess.Move, Node]
+    move: chess.Move
 
-    def __init__(self, parent: Node | None, prior: float) -> None:
+    def __init__(
+        self, parent: Optional["Node"], value: float, prior: float, move: chess.Move
+    ):
         self.parent = parent
-        self.visits = 0
-        self.value_sum = 0.0
-        self.prior = prior
         self.children = {}
+        self.value_sum = value  # value_sum to the perspective of parent
+        self.visits = 1
+        self.prior = prior
+        self.move = move
 
-    def is_expanded(self) -> bool:
-        return len(self.children) != 0
+    def puct(self):
+        assert self.parent
+        exploitation = self.value_sum / self.visits
+        exploration = math.sqrt(self.parent.visits) * self.prior / self.visits
+        return exploitation + exploration
 
-    def value(self) -> float:
-        if self.visits == 0:
-            return 0.0
-        return self.value_sum / self.visits
-
-
-def expand(node: Node, priors: Priors) -> None:
-    for move, prior in priors.items():
-        node.children[move] = Node(node, prior)
+    def __repr__(self):
+        return f"Node <{self.move} {self.visits} {self.value_sum}>"
 
 
-def backpropagate(node: Node, value: float, board: chess.Board) -> None:
-    current = node
-    turn_factor = -1
-    while current.parent:
-        current.visits += 1
-        current.value_sum += turn_factor * value
-        current = current.parent
-        turn_factor *= -1
+def select_best_puct(node: Node) -> Node:
+    best = None
+    max_puct = None
+
+    for child in node.children.values():
+        puct = child.puct()
+        if max_puct is None or puct > max_puct:
+            max_puct = puct
+            best = child
+
+    assert best is not None
+    return best
+
+
+def select_leaf(root: Node, board: chess.Board) -> Node:
+    node = root
+    while len(node.children) != 0:
+        node = select_best_puct(node)
+        board.push(node.move)
+    return node
+
+
+def expand(node: Node, child_priors):
+    for move, prior in child_priors.items():
+        node.children[move] = Node(node, 0.0, prior, move)
+
+
+def backup(leaf: Node, board: chess.Board, value_leaf: float):
+    node = leaf
+    value = value_leaf
+    while node.parent:
+        value = -value  # perspective alternating on each move
+        node.value_sum += value
+        node.visits += 1
+
         board.pop()
+        node = node.parent
 
-    current.visits += 1
-
-
-def select_leaf(root: Node, board: chess.Board, cpuct: float) -> Node:
-    current = root
-
-    while current.is_expanded():
-        move, current = select_child(current, cpuct)
-        board.push(move)
-
-    return current
+    # at this point we don't have parent, means we root
+    root = node
+    value = -value
+    root.value_sum += value
+    root.visits += 1
 
 
-def select_child(node: Node, cpuct: float) -> tuple[chess.Move, Node]:
-    return max(node.children.items(), key=lambda el: ucb_score(node, el[1], cpuct))
+def most_visited_move(node: Node) -> chess.Move:
+    max_visits = 0
+    current_move = chess.Move.null()
+    for move, child in node.children.items():
+        if child.visits > max_visits:
+            max_visits = child.visits
+            current_move = move
+    assert current_move != chess.Move.null(), "Can't play null move"
+    return current_move
 
 
-def ucb_score(parent: Node, child: Node, cpuct: float) -> float:
-    exploration = cpuct * child.prior * math.sqrt(parent.visits) / (child.visits + 1)
-    return child.value() + exploration
-
-
-def most_visits_move(root: Node) -> chess.Move:
-    bestmove, _ = max(root.children.items(), key=lambda el: el[1].visits)
-    return bestmove
+def terminal_solver(board: chess.Board) -> float | None:
+    board_result = board.result(claim_draw=True)
+    if board_result != "*":  # This node is terminal
+        # No matter White or Black won, we lost because it is our turn to move
+        if board_result == "1-0" or board_result == "0-1":
+            return -1.0
+        elif board_result == "1/2-1/2":
+            return 0.0
+    return None
 
 
 class MCTS(BaseSearcher):
-    def __init__(self) -> None:
-        self._params = params.MCTSparams()
+    def __init__(self):
+        self._params = MctsParams()
 
     @property
     def params(self):
@@ -87,10 +126,9 @@ class MCTS(BaseSearcher):
     def search(
         self, board: chess.Board, stopper: Stopper, evaluator: BaseModel
     ) -> chess.Move:
-        root = Node(None, 0.0)
         priors, value = evaluator.evaluate(board)
-
-        if board.ply() // 2 < self.params.first_n_moves:
+        root = Node(None, value, 1.0, chess.Move.null())
+        if board.ply() < 2 * self.params.opening_noise_moves:
             priors = apply_noise(
                 priors,
                 dirichlet_alpha=self.params.dirichlet_alpha,
@@ -98,11 +136,16 @@ class MCTS(BaseSearcher):
             )
 
         expand(root, priors)
+
         while not stopper.should_stop():
-            leaf = select_leaf(root, board, self.params.cpuct)
-            priors, value = evaluator.evaluate(board)
+            leaf = select_leaf(root, board)
+            terminal_value = terminal_solver(board)
+            if terminal_value is not None:
+                priors, value = {}, terminal_value
+            else:
+                priors, value = evaluator.evaluate(board)
             expand(leaf, priors)
-            backpropagate(leaf, value, board)
+            backup(leaf, board, value)
 
         print(f"info nodes {root.visits}")
-        return most_visits_move(root)
+        return most_visited_move(root)
