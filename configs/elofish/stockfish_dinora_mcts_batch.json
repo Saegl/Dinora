@@ -1,5 +1,5 @@
 {
-    "max_games": 40,
+    "max_games": 35,
     "min_phi": 20.0,
     "min_mu": 1200,
     "teacher_player": {
@@ -16,7 +16,7 @@
     "student_player": {
         "class": "UCIPlayer",
         "start_rating": {
-            "mu": 2300,
+            "mu": 2000,
             "phi": 350
         },
         "init": {
@@ -25,7 +25,7 @@
                 "-m",
                 "dinora",
                 "--searcher",
-                "mcts_vloss",
+                "mcts_batch",
                 "--model",
                 "alphanet",
                 "--device",
@@ -34,9 +34,10 @@
                 "models/alphanet_rerun-valid-state-4.ckpt"
             ],
             "options": {
-                "batch_size": "256",
-                "virtual_loss": "30",
-                "max_collisions": "35"
+                "cpuct": "3.0",
+                "batch_size": "16",
+                "virtual_visits": "1",
+                "max_collisions": "1"
             },
             "time_limit": 1.0
         }
