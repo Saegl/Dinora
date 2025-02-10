@@ -8,8 +8,10 @@ import torch
 
 from dinora.encoders.board_representation import compact_state_to_board_tensor
 from dinora.encoders.policy import extract_logit
+from dinora.engine import Engine
 from dinora.models import model_selector
 from dinora.models.alphanet import AlphaNet
+from dinora.search.stoppers import MoveTime, NodesCount
 
 device = "cuda"
 
@@ -114,18 +116,51 @@ def calc_value_cploss(model, positions, value_boards, batch_size: int) -> float:
     return total_cploss / len(positions)
 
 
+def calc_engine_cploss(
+    model: AlphaNet, positions: dict, searcher: str, stopper_creator
+) -> float:
+    engine = Engine(searcher=searcher)
+    engine._model = model
+
+    total_cploss = 0
+    for position in positions:
+        board = chess.Board(fen=position["fen"])
+        move = engine.get_best_move(board, stopper=stopper_creator())
+        move_loss = position["actions"][move.uci()]
+        total_cploss += move_loss
+
+    return total_cploss / len(positions)
+
+
+def make_stopper_creator(movetime, nodes):
+    if nodes is not None:
+        return lambda: NodesCount(nodes)
+    else:
+        return lambda: MoveTime(int(1000 * movetime))
+
+
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument("model_path")
     argparser.add_argument("batch_size")
     argparser.add_argument("loaddir")
-    argparser.add_argument("max_positions", nargs="?", default=99_999, type=int)
+    argparser.add_argument("--max_positions", default=99_999, type=int)
+    argparser.add_argument("--searcher", default="auto")
+    argparser.add_argument("--movetime", default=1.0, type=float)
+    argparser.add_argument("--nodes", type=int)
 
     args = argparser.parse_args()
 
     model_path = pathlib.Path(args.model_path)
     batch_size = int(args.batch_size)
     max_positions = args.max_positions
+    searcher = args.searcher
+    movetime = args.movetime
+    nodes = args.nodes
+
+    stopper_creator = make_stopper_creator(movetime, nodes)
+
+    print(f"Chosen Engine {searcher} {stopper_creator()}")
 
     print("Model loading")
     model = model_selector("alphanet", model_path, "cuda")
@@ -150,6 +185,9 @@ def main():
 
     policy_cploss = calc_policy_cploss(model, positions, policy_boards, batch_size)
     print("Policy loss", policy_cploss)
+
+    engine_cploss = calc_engine_cploss(model, positions, searcher, stopper_creator)
+    print("Engine loss", engine_cploss)
 
 
 if __name__ == "__main__":

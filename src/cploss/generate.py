@@ -62,6 +62,7 @@ with open(args.pgn) as pgn_file:
                     "flip": flip,
                     "moves_uci_seq": moves_uci_seq,
                     "actions": normalized_actions,
+                    "fen": board.fen(),
                 }
             )
 
