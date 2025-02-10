@@ -5,7 +5,7 @@ import numpy as np
 import numpy.typing as npt
 import onnxruntime
 
-from dinora.encoders.board_representation import board_to_tensor
+from dinora.encoders.board_tensor import board_to_tensor
 from dinora.models import search_weights
 from dinora.models.nnwrapper import NNWrapper
 

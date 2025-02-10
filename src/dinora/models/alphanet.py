@@ -66,7 +66,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 
-from dinora.encoders.board_representation import board_to_tensor
+from dinora.encoders.board_tensor import board_to_tensor
 from dinora.models.nnwrapper import NNWrapper
 
 npf32 = npt.NDArray[np.float32]
