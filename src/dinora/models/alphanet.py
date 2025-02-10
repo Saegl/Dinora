@@ -213,10 +213,8 @@ class AlphaNet(pl.LightningModule, NNWrapper):
         )
 
     def configure_optimizers(self) -> Any:
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
-        scheduler = StepLR(
-            optimizer, step_size=1, gamma=self.lr_scheduler_gamma, verbose=True
-        )
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)  # type: ignore
+        scheduler = StepLR(optimizer, step_size=1, gamma=self.lr_scheduler_gamma)
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
