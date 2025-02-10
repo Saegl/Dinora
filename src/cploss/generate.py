@@ -6,7 +6,7 @@ import chess.engine
 import chess.pgn
 import numpy as np
 
-from dinora.encoders.board_tensor import board_to_compact_state
+from dataset.encoders.compact_board_tensor import board_to_compact_state
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("pgn")

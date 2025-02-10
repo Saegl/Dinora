@@ -6,8 +6,8 @@ import numpy as np
 import numpy.typing as npt
 from torch.utils.data import DataLoader, TensorDataset
 
+from dataset.encoders.compact_board_tensor import compact_state_to_board_tensor
 from dinora import PROJECT_ROOT
-from dinora.encoders.board_tensor import compact_state_to_board_tensor
 
 npf32 = npt.NDArray[np.float32]
 

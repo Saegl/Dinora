@@ -2,11 +2,11 @@ import chess
 import numpy as np
 import pytest
 
-from dinora.encoders.board_tensor import (
+from dataset.encoders.compact_board_tensor import (
     board_to_compact_state,
-    board_to_tensor,
     compact_state_to_board_tensor,
 )
+from dinora.encoders.board_tensor import board_to_tensor
 
 FENS = [
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",

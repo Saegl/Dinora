@@ -6,7 +6,7 @@ import chess
 import numpy as np
 import torch
 
-from dinora.encoders.board_tensor import compact_state_to_board_tensor
+from dataset.encoders.compact_board_tensor import compact_state_to_board_tensor
 from dinora.encoders.policy import extract_logit
 from dinora.engine import Engine
 from dinora.models import model_selector
