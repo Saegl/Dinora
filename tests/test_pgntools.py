@@ -2,9 +2,7 @@ from io import StringIO
 
 from dinora.pgntools import (
     load_chess_games,
-    load_compact_state_tensors,
     load_game_states,
-    load_state_tensors,
 )
 
 pgn_games = """
@@ -88,14 +86,3 @@ def test_load_game_states_count():
 
     sum_plies = FIRST_GAME_PLIES + SECOND_GAME_PLIES + THIRD_GAME_PLIES
     assert len(states) == sum_plies
-
-
-def test_load_tensors_count():
-    handle1 = StringIO(pgn_games)
-    handle2 = StringIO(pgn_games)
-    handle3 = StringIO(pgn_games)
-
-    states = len(list(load_game_states(handle1)))
-    tensors = len(list(load_state_tensors(handle2)))
-    compact_tensors = len(list(load_compact_state_tensors(handle3)))
-    assert states == tensors == compact_tensors

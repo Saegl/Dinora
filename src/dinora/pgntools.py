@@ -9,10 +9,6 @@ import numpy.typing as npt
 from chess import Board, Move
 from chess.pgn import Game
 
-from dinora.encoders.board_representation import board_to_compact_state, board_to_tensor
-from dinora.encoders.outcome import wdl_index
-from dinora.encoders.policy import policy_index
-
 logging.basicConfig(level=logging.DEBUG)
 
 npf32 = npt.NDArray[np.float32]
@@ -44,29 +40,3 @@ def load_game_states(pgn: TextIO) -> Iterator[tuple[Game, Board, Move]]:
                     f"Broken game found, can't make a move {move}. Skipping game"
                 )
                 break
-
-
-def load_state_tensors(pgn: TextIO) -> Iterator[tuple[npf32, tuple[int, int]]]:
-    for game, board, move in load_game_states(pgn):
-        flip = not board.turn
-        yield (
-            board_to_tensor(board, flip),
-            (
-                policy_index(move, flip),
-                wdl_index(game, flip),
-            ),
-        )
-
-
-def load_compact_state_tensors(
-    pgn: TextIO,
-) -> Iterator[tuple[npuint64, tuple[int, int]]]:
-    for game, board, move in load_game_states(pgn):
-        flip = not board.turn
-        yield (
-            board_to_compact_state(board, flip),
-            (
-                policy_index(move, flip),
-                wdl_index(game, flip),
-            ),
-        )
