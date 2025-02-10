@@ -8,7 +8,7 @@ import numpy as np
 from chess.engine import LOGGER as engine_logger
 
 from dataset.encoders.compact_board_tensor import board_to_compact_state
-from dinora.encoders.outcome import stockfish_value, wdl_index, z_value
+from dataset.encoders.outcome import stockfish_value, wdl_index, z_value
 from dinora.encoders.policy import policy_index
 from dinora.pgntools import load_game_states
 
