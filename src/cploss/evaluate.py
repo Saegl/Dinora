@@ -90,7 +90,7 @@ def calc_value_cploss(model, positions, value_boards, batch_size: int) -> float:
         batch_offset += batch_size
         value = load_batch(batch_offset)
 
-        return np.concat([prefix, get_value_positions(batch_offset, pos_end)])
+        return np.concatenate([prefix, get_value_positions(batch_offset, pos_end)])
 
     total_cploss = 0
     moves_offset = 0
