@@ -16,6 +16,7 @@ from dinora import PROJECT_ROOT
 from train.datamodules import WandbDataModule
 from train.train_callbacks import (
     BoardsEvaluator,
+    CPLoss,
     SampleGameGenerator,
     ValidationCheckpointer,
 )
@@ -50,6 +51,11 @@ class Config:
     enable_sample_game_generator: bool
     enable_boards_evaluator: bool
     enable_validation_checkpointer: bool
+
+    enable_cploss: bool
+    cploss_label: str
+    cploss_batch_size: int
+    cploss_positions: int
 
     log_every_n_steps: int
 
@@ -89,6 +95,16 @@ def get_model(config: Config) -> pl.LightningModule:
 
 
 def fit(config: Config) -> None:
+    wandb_logger = WandbLogger(
+        project="dinora-chess",
+        log_model="all",  # save model weights to wandb
+        config={"config_file": asdict(config)},
+    )
+    if not wandb_logger.experiment:
+        # Calling .experiment prop causes wandb run to init
+        # before creating WandbDataModule
+        raise Exception("wandb run not initialized")
+
     torch.set_float32_matmul_precision(config.matmul_precision)
     max_time = timedelta(**config.max_time) if config.max_time else None
 
@@ -115,18 +131,16 @@ def fit(config: Config) -> None:
         )
         callbacks.append(mc)
 
+    if config.enable_cploss:
+        callbacks.append(
+            CPLoss(
+                config.cploss_label,
+                config.cploss_positions,
+                config.cploss_batch_size,
+            )
+        )
+
     model = get_model(config)
-
-    wandb_logger = WandbLogger(
-        project="dinora-chess",
-        log_model="all",  # save model weights to wandb
-        config={"config_file": asdict(config)},
-    )
-
-    if not wandb_logger.experiment:
-        # Calling .experiment prop causes wandb run to init
-        # before creating WandbDataModule
-        raise Exception("wandb run not initialized")
 
     datamodule = WandbDataModule(
         dataset_label=config.dataset_label,

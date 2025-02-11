@@ -139,6 +139,18 @@ def make_stopper_creator(movetime, nodes):
         return lambda: MoveTime(int(1000 * movetime))
 
 
+def load_cploss(loaddir: pathlib.Path, count: int):
+    value_boards_file = loaddir / "value_boards.npz"
+    boards_file = loaddir / "policy_boards.npz"
+    positions_file = loaddir / "positions.json"
+
+    value_boards = np.load(value_boards_file)["boards"]
+    policy_boards = np.load(boards_file)["boards"]
+    positions = json.load(positions_file.open())
+
+    return value_boards, policy_boards, positions[:count]
+
+
 def main():
     argparser = argparse.ArgumentParser()
     argparser.add_argument("model_path")
@@ -169,14 +181,7 @@ def main():
     assert isinstance(model, AlphaNet)
 
     loaddir = pathlib.Path(args.loaddir)
-    value_boards_file = loaddir / "value_boards.npz"
-    boards_file = loaddir / "policy_boards.npz"
-    positions_file = loaddir / "positions.json"
-
-    value_boards = np.load(value_boards_file)["boards"]
-    policy_boards = np.load(boards_file)["boards"]
-    positions = json.load(positions_file.open())
-    positions = positions[:max_positions]
+    value_boards, policy_boards, positions = load_cploss(loaddir, max_positions)
 
     print(f"Positions: {len(positions)}")
 
