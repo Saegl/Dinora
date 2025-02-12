@@ -10,7 +10,7 @@ Board tensor in NCHW format:
 Array weight is 18 * 8 * 8 * 4 = 4608 bytes, where 4 is float32
 """
 
-import typing
+from typing import Any
 
 import chess
 import numpy as np
@@ -62,18 +62,50 @@ PIECE_INDEX = {
 assert len(PIECE_INDEX) == 12
 
 
+# type should be npt.NDArray[np.uint64], but type checker can't prove
+def flip_vertical(bb: Any) -> Any:
+    # https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#FlipVertically
+    bb = ((bb >> 8) & 0x00FF_00FF_00FF_00FF) | ((bb & 0x00FF_00FF_00FF_00FF) << 8)
+    bb = ((bb >> 16) & 0x0000_FFFF_0000_FFFF) | ((bb & 0x0000_FFFF_0000_FFFF) << 16)
+    bb = (bb >> 32) | ((bb & 0x0000_0000_FFFF_FFFF) << 32)
+    return bb
+
+
 def board_to_tensor(board: chess.Board, flip: bool) -> npf32:
     "Convert current state (chessboard) to tensor"
     tensor = np.zeros((18, 8, 8), np.float32)
 
     # Set pieces [0: 12)
-    for square in chess.scan_reversed(board.occupied):
-        file, rank = divmod(square, 8)
-        piece = typing.cast(chess.Piece, board.piece_at(square))
-        index = PIECE_INDEX[piece.piece_type, piece.color ^ flip]
-        if flip:
-            file = 7 - file
-        tensor[index, file, rank] = 1.0
+    if flip:
+        p1_occ = board.occupied_co[chess.BLACK]
+        p2_occ = board.occupied_co[chess.WHITE]
+    else:
+        p1_occ = board.occupied_co[chess.WHITE]
+        p2_occ = board.occupied_co[chess.BLACK]
+
+    bitboards = np.array(
+        [
+            board.kings & p1_occ,
+            board.queens & p1_occ,
+            board.rooks & p1_occ,
+            board.bishops & p1_occ,
+            board.knights & p1_occ,
+            board.pawns & p1_occ,
+            board.kings & p2_occ,
+            board.queens & p2_occ,
+            board.rooks & p2_occ,
+            board.bishops & p2_occ,
+            board.knights & p2_occ,
+            board.pawns & p2_occ,
+        ],
+        dtype=np.uint64,
+    )
+    if flip:
+        bitboards = flip_vertical(bitboards)
+
+    tensor[0:12] = np.unpackbits(bitboards.view(np.uint8), bitorder="little").reshape(
+        12, 8, 8
+    )
 
     # Set castling rights [12: 16)
     if board.castling_rights & (chess.BB_H8 if flip else chess.BB_H1):
