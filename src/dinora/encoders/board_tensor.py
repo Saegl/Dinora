@@ -44,23 +44,6 @@ PLANE_NAMES = [
 
 assert len(PLANE_NAMES) == 18
 
-PIECE_INDEX = {
-    (chess.KING, chess.WHITE): 0,
-    (chess.QUEEN, chess.WHITE): 1,
-    (chess.ROOK, chess.WHITE): 2,
-    (chess.BISHOP, chess.WHITE): 3,
-    (chess.KNIGHT, chess.WHITE): 4,
-    (chess.PAWN, chess.WHITE): 5,
-    (chess.KING, chess.BLACK): 6,
-    (chess.QUEEN, chess.BLACK): 7,
-    (chess.ROOK, chess.BLACK): 8,
-    (chess.BISHOP, chess.BLACK): 9,
-    (chess.KNIGHT, chess.BLACK): 10,
-    (chess.PAWN, chess.BLACK): 11,
-}
-
-assert len(PIECE_INDEX) == 12
-
 
 # type should be npt.NDArray[np.uint64], but type checker can't prove
 def flip_vertical(bb: Any) -> Any:
