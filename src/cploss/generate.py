@@ -16,12 +16,19 @@ argparser.add_argument("savedir")
 
 args = argparser.parse_args()
 
+
 nodes = int(args.nodes)
 positions = int(args.positions)
 
 output_policy_boards = []
 output_value_boards = []
 output_positions = []
+
+metadata = {
+    "pgn": args.pgn,
+    "nodes": nodes,
+    "positions": positions,
+}
 
 engine = chess.engine.SimpleEngine.popen_uci("stockfish")
 
@@ -90,6 +97,7 @@ save_dir.mkdir(exist_ok=True)
 value_boards_file = save_dir / "value_boards.npz"
 policy_boards_file = save_dir / "policy_boards.npz"
 positions_file = save_dir / "positions.json"
+metadata_file = save_dir / "metadata.json"
 
 
 np.savez_compressed(policy_boards_file, boards=output_policy_boards)
@@ -97,3 +105,6 @@ np.savez_compressed(value_boards_file, boards=output_value_boards)
 
 with positions_file.open("w") as f:
     json.dump(output_positions, f)
+
+with metadata_file.open("w") as f:
+    json.dump(metadata, f)
