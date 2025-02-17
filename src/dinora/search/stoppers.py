@@ -41,6 +41,9 @@ class Time(Stopper):
         self.steps = 0
 
     def should_stop(self) -> bool:
+        if not self.called:
+            self.called = True
+            return False
         if super().should_stop():
             return True
         return time() - self.starttime > self.move_time
