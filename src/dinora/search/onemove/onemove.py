@@ -12,13 +12,9 @@ class Params:
     pass
 
 
-class OneMove(BaseSearcher):
+class OneMove(BaseSearcher[Params]):
     def __init__(self) -> None:
-        self._params = Params()
-
-    @property
-    def params(self):
-        return self._params
+        self.params = Params()
 
     def search(
         self, board: chess.Board, stopper: Stopper, evaluator: BaseModel

@@ -115,13 +115,9 @@ def terminal_solver(board: chess.Board) -> float | None:
     return None
 
 
-class MCTS(BaseSearcher):
+class MCTS(BaseSearcher[MctsParams]):
     def __init__(self):
-        self._params = MctsParams()
-
-    @property
-    def params(self):
-        return self._params
+        self.params = MctsParams()
 
     def search(
         self, board: chess.Board, stopper: Stopper, evaluator: BaseModel

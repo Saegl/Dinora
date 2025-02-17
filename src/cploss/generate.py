@@ -54,6 +54,7 @@ with open(args.pgn) as pgn_file:
                 board.pop()
 
                 assert "score" in info
+                # TODO: filter out positions with mate or not in range (-500, +500)
                 score = info["score"].relative.score(mate_score=3000)
                 actions.append((score, legal_move.uci()))
 

@@ -7,13 +7,9 @@ from dinora.search.ext_mcts.search import run_mcts
 from dinora.search.stoppers import Stopper
 
 
-class ExtMcts(BaseSearcher):
+class ExtMcts(BaseSearcher[MCTSparams]):
     def __init__(self) -> None:
-        self._params = MCTSparams()
-
-    @property
-    def params(self):
-        return self._params
+        self.params = MCTSparams()
 
     def search(
         self, board: chess.Board, stopper: Stopper, evaluator: BaseModel

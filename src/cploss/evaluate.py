@@ -117,10 +117,11 @@ def calc_value_cploss(model, positions, value_boards, batch_size: int) -> float:
 
 
 def calc_engine_cploss(
-    model: AlphaNet, positions: dict, searcher: str, stopper_creator
+    model: AlphaNet, positions: dict, searcher: str, stopper_creator, params
 ) -> float:
     engine = Engine(searcher=searcher)
     engine._model = model
+    engine.searcher.update_from_dict(params)
 
     total_cploss = 0
     for position in positions:
@@ -132,11 +133,13 @@ def calc_engine_cploss(
     return total_cploss / len(positions)
 
 
-def make_stopper_creator(movetime, nodes):
+def make_stopper_creator(movetime=None, nodes=None):
     if nodes is not None:
         return lambda: NodesCount(nodes)
-    else:
+    elif movetime is not None:
         return lambda: MoveTime(int(1000 * movetime))
+    else:
+        raise Exception("Cant create stopper")
 
 
 def load_cploss(loaddir: pathlib.Path, count: int):
@@ -169,6 +172,7 @@ def main():
     searcher = args.searcher
     movetime = args.movetime
     nodes = args.nodes
+    params = {}  # TODO: pass custom params from somewhere?
 
     stopper_creator = make_stopper_creator(movetime, nodes)
 
@@ -191,7 +195,9 @@ def main():
     policy_cploss = calc_policy_cploss(model, positions, policy_boards, batch_size)
     print("Policy loss", policy_cploss)
 
-    engine_cploss = calc_engine_cploss(model, positions, searcher, stopper_creator)
+    engine_cploss = calc_engine_cploss(
+        model, positions, searcher, stopper_creator, params
+    )
     print("Engine loss", engine_cploss)
 
 
