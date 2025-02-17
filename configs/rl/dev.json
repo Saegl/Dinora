@@ -1,11 +1,11 @@
 {
-    "first_n_moves": 15,
+    "opening_noise_moves": 15,
     "dirichlet_alpha": 0.4,
     "noise_fraction": 0.4,
-    "ucb_score": 1.4,
+    "cpuct": 4.0,
     "generations": 1000,
-    "games_per_generation": 100,
+    "games_per_generation": 3,
     "epochs_per_generation": 3,
     "nodes_per_move": 100,
-    "batch_size": 512
+    "batch_size": 3
 }
