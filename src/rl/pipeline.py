@@ -29,7 +29,8 @@ class Config:
     epochs_per_generation: int = 1
     nodes_per_move: int = 15
 
-    batch_size: int = 1024
+    batch_size_train: int = 128
+    batch_size_selfplay: int = 128
     learning_rate: float = 0.001
 
     @staticmethod
@@ -50,7 +51,7 @@ def collect_games(
         model,
         config.games_per_generation,
         config.nodes_per_move,
-        config.batch_size,
+        config.batch_size_selfplay,
         config.cpuct,
         config.opening_noise_moves,
         config.dirichlet_alpha,
@@ -114,6 +115,6 @@ def start_rl(config: Config):
         )
 
         datamodule = CompactDataModule(
-            dataset_dir, z_weight=1.0, q_weight=0.0, batch_size=config.batch_size
+            dataset_dir, z_weight=1.0, q_weight=0.0, batch_size=config.batch_size_train
         )
         fit(config, model, datamodule, generation_output_dir)
