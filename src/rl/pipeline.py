@@ -30,6 +30,7 @@ class Config:
     nodes_per_move: int = 15
 
     batch_size: int = 1024
+    learning_rate: float = 0.001
 
     @staticmethod
     def from_file(filepath: pathlib.Path):
@@ -86,7 +87,7 @@ def fit(config: Config, model, datamodule, generation_output_dir: pathlib.Path):
 
 
 def start_rl(config: Config):
-    model = AlphaNet()
+    model = AlphaNet(learning_rate=config.learning_rate)
     output_dir = pathlib.Path.cwd() / "data" / "rl_data"
 
     wandb.init(job_type="rl", project="dinora-chess")

@@ -7,5 +7,6 @@
     "games_per_generation": 3,
     "epochs_per_generation": 3,
     "nodes_per_move": 100,
-    "batch_size": 3
+    "batch_size": 3,
+    "learning_rate": 0.001
 }
