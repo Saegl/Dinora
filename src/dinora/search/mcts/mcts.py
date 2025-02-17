@@ -38,22 +38,22 @@ class Node:
         self.prior = prior
         self.move = move
 
-    def puct(self):
+    def puct(self, cpuct: float):
         assert self.parent
         exploitation = self.value_sum / self.visits
-        exploration = math.sqrt(self.parent.visits) * self.prior / self.visits
+        exploration = cpuct * math.sqrt(self.parent.visits) * self.prior / self.visits
         return exploitation + exploration
 
     def __repr__(self):
         return f"Node <{self.move} {self.visits} {self.value_sum}>"
 
 
-def select_best_puct(node: Node) -> Node:
+def select_best_puct(node: Node, cpuct: float) -> Node:
     best = None
     max_puct = None
 
     for child in node.children.values():
-        puct = child.puct()
+        puct = child.puct(cpuct)
         if max_puct is None or puct > max_puct:
             max_puct = puct
             best = child
@@ -62,10 +62,10 @@ def select_best_puct(node: Node) -> Node:
     return best
 
 
-def select_leaf(root: Node, board: chess.Board) -> Node:
+def select_leaf(root: Node, board: chess.Board, cpuct: float) -> Node:
     node = root
     while len(node.children) != 0:
-        node = select_best_puct(node)
+        node = select_best_puct(node, cpuct)
         board.push(node.move)
     return node
 
@@ -134,7 +134,7 @@ class MCTS(BaseSearcher[MctsParams]):
         expand(root, priors)
 
         while not stopper.should_stop():
-            leaf = select_leaf(root, board)
+            leaf = select_leaf(root, board, self.params.cpuct)
             terminal_value = terminal_solver(board)
             if terminal_value is not None:
                 priors, value = {}, terminal_value
