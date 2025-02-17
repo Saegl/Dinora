@@ -210,7 +210,11 @@ def play_game(
             break
 
     result = board.result(claim_draw=True)
+    outcome = board.outcome(claim_draw=True)
     game.headers["Result"] = result
+    game.headers["TerminationEnum"] = (
+        str(outcome.termination.name) if outcome else "UNKNOWN"
+    )
     game.headers["AvgTeacherNodes"] = str(teacher_total_nodes // teacher_plies)
     game.headers["AvgStudentNodes"] = str(student_total_nodes // student_plies)
 

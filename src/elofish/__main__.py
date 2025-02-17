@@ -112,9 +112,11 @@ def run_cli(args: Args) -> None:
                 result_string = f"{Fore.YELLOW}Draw{Fore.RESET}"
                 draws += 1
 
+            termination = game.headers["TerminationEnum"]
+
             game_log = (
                 f"{Fore.BLUE}{round_ind}{Fore.RESET}:"
-                f" {result_string}"
+                f" {result_string} by {termination}"
                 f", Elo = {elo} ({student_rating_deviation})"
                 f", {Fore.MAGENTA}StudentSpeed{Fore.RESET} = {student_nodes} n/ply"
                 f", {Fore.CYAN}TeacherSpeed{Fore.RESET} = {teacher_nodes} n/ply"
