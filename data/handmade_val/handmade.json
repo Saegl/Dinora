@@ -148,7 +148,7 @@
         "stockfish_cp": -0.03,
         "stockfish_top3_lines": "['f3d4', 'd7d6', 'e1g1']\n['f3e5', 'e7e5', 'e1g1']\n['e1g1', 'e5f3', 'e2f3']",
         "stockfish_wdl": "0.01 | 0.99 | 0.01",
-        "text": "bad budapest for white (but stil eq)",
+        "text": "bad budapest for white (but still eq)",
         "type": "WHITE EQUAL"
     },
     {
@@ -268,7 +268,7 @@
         "stockfish_cp": 4.01,
         "stockfish_top3_lines": "['d7b7', 'e6e5', 'f4e3']\n['d7c7', 'b7a8', 'g2f1']\n['d7d8', 'e7d8', 'g2f1']",
         "stockfish_wdl": "1.00 | 0.00 | 0.00",
-        "text": "have to take piece (only winnig move)",
+        "text": "have to take piece (only winning move)",
         "type": "WHITE IS WINNING"
     },
     {

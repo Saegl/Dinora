@@ -88,7 +88,7 @@ class UCIPlayer(RatedPlayer):
 
     @property
     def name(self) -> str:
-        return self.uci_engine.id.get("name", "UnkownEngine")
+        return self.uci_engine.id.get("name", "UnknownEngine")
 
     def play(self, board: chess.Board) -> tuple[chess.Move, int]:
         playres = self.uci_engine.play(

@@ -7,7 +7,7 @@ extra_time = 0.5
 
 class Stopper:
     """
-    Stoppers controll when to stop searching
+    Stoppers control when to stop searching
     """
 
     def __init__(self):

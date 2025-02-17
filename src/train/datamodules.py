@@ -56,7 +56,7 @@ class CompactDataset(TensorDataset):
         if not (self.current_left_bound <= index < self.current_right_bound):
             for chunk_info in self.chunks_bounds:
                 if chunk_info["left_bound"] <= index < chunk_info["right_bound"]:  # type: ignore
-                    print("Swith to", chunk_info["path"])
+                    print("Switch to", chunk_info["path"])
 
                     data = np.load(chunk_info["path"])  # type: ignore
                     self.current_left_bound = chunk_info["left_bound"]  # type: ignore

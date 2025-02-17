@@ -19,7 +19,7 @@ NN see board only from white perspective.
 So when we want to make NN inference for black perspective
 -> we have to flip board over horizontal line
 (white becomes black and black becomes white),
-after this flip, all prior probabilites from NN also comes flipped.
+after this flip, all prior probabilities from NN also comes flipped.
 """
 
 from collections.abc import Iterable
