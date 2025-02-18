@@ -88,7 +88,7 @@ def fit(config: Config, model, datamodule, generation_output_dir: pathlib.Path):
 
 
 def start_rl(config: Config):
-    model = AlphaNet(learning_rate=config.learning_rate)
+    model = AlphaNet(learning_rate=config.learning_rate).to("cuda")
     output_dir = pathlib.Path.cwd() / "data" / "rl_data"
 
     wandb.init(job_type="rl", project="dinora-chess")
