@@ -1,5 +1,6 @@
 import datetime
 import pathlib
+import time
 from io import TextIOWrapper
 
 import chess
@@ -112,7 +113,6 @@ def save_game_pgn(game: Game, pgn_output: TextIOWrapper):
         result = board.result(claim_draw=True)
     game_pgn.headers["Result"] = result
     print(game_pgn, end="\n\n", flush=True, file=pgn_output)
-    print(".", end="", flush=True)
 
 
 def selfplay(
@@ -127,19 +127,22 @@ def selfplay(
     pgn_file: pathlib.Path,
 ):
     games = [Game(nodes_per_move, cpuct) for _ in range(batch_size)]
-    completed_games = []
+    completed_games = 0
 
     batch_calls = 0
 
     pgn_output = pgn_file.open("w", encoding="utf8")
 
-    while len(completed_games) < games_count:
+    last_log_time = time.time()
+    log_interval = 10 * 60
+
+    while completed_games < games_count:
         # gather batch
         for i in range(batch_size):
             game = games[i]
             done = game.next()
             if done:
-                completed_games.append(game)
+                completed_games += 1
                 save_game_pgn(game, pgn_output)
                 games[i] = Game(nodes_per_move, cpuct)
                 game = games[i]
@@ -153,8 +156,19 @@ def selfplay(
             game.submit(*outs[i], opening_noise_moves, dirichlet_alpha, noise_eps)
             # print(f"Game {i} ply", game.board.ply())
 
-        batch_calls += 1
         # print(batch_calls)
+
+        batch_calls += 1
+
+        current_time = time.time()
+        if current_time - last_log_time >= log_interval:
+            last_log_time = time.time()
+            print("=" * 80)
+            print("Batch plies")
+            print([game.board.ply() for game in games])
+            print(f"Number of batch calls: {batch_calls}")
+            print(f"Number of generated games {completed_games} / {games_count}")
+            print("=" * 80)
 
     pgn_output.close()
 
